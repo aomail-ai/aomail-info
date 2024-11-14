@@ -1,0 +1,34 @@
+{
+  "constants": {
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher des articles",
+    "actions": {
+      "joinBeta": "Rejoindre la version bêta"
+    }
+  },
+  "header": {
+    "languageSelectionModal": {
+      "title": "Sélectionnez votre langue",
+      "french": "Français",
+      "english": "Anglais"
+    }
+  },
+  "footer": {
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation",
+    "allRightsReserved": "Tous droits réservés."
+  },
+  "errorWebPagesTemplates": {
+    "error401NotAuthorized": {
+      "youAreNotConnected": "Vous n'êtes pas connecté",
+      "redirectionToLogin": "Vous serez redirigé vers la page de connexion dans",
+      "redirectNow": "Rediriger maintenant"
+    },
+    "error404NotFound": {
+      "pageNotFound": "404 - Page non trouvée",
+      "pageDoesNotExist": "La page que vous recherchez n'existe pas",
+      "goBack": "Retourner en arrière",
+      "goMainPage": "Retourner à la page principale"
+    }
+  }
+}
