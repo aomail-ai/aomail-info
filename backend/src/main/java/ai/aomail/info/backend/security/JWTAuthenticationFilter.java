@@ -6,16 +6,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
@@ -26,7 +27,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTHelper jwtHelper;
 
-    // Lazy inject the UserDetailsService to avoid circular dependencies
     private final UserDetailsService userDetailsService;
 
     @Autowired
@@ -36,9 +36,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String requestHeader = request.getHeader("Authorization");
-        logger.info("Header: {}", requestHeader);
         String username = null;
         String token = null;
 
@@ -47,7 +50,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username = this.jwtHelper.getUsernameFromToken(token);
             } catch (IllegalArgumentException e) {
-                logger.info("Illegal Argument" +e.getMessage());
+                logger.info("Illegal Argument" + e.getMessage());
                 logger.info("Illegal Argument while fetching the username!!");
             } catch (ExpiredJwtException e) {
                 logger.info("Given JWT token is expired!!");
@@ -57,7 +60,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 logger.error("Error while fetching the username from token: {}", e.getMessage());
             }
         } else {
-            logger.info("No Authorization header found!");
+            logger.debug("No Authorization header found!");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

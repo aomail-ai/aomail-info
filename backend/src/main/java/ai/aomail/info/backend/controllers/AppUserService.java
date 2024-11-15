@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
-public class AppUserController implements AppUserInterface {
+public class AppUserService implements AppUserInterface {
     private final AppUserRepository appUserRepository;
 
     @Autowired
-    public AppUserController(AppUserRepository appUserRepository) {
+    public AppUserService(AppUserRepository appUserRepository) {
         this.appUserRepository = appUserRepository;
     }
 

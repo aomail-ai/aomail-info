@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class LoginController {
+public class LoginRestController {
 
     @Autowired
     private AuthenticationManager manager;
@@ -30,10 +30,10 @@ public class LoginController {
     private JWTHelper helper;
 
     @Autowired
-    @Qualifier("appUserController")
-    private AppUserController appUserService;
+    @Qualifier("appUserService")
+    private AppUserService appUserService;
 
-    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private final Logger logger = LoggerFactory.getLogger(LoginRestController.class);
 
     @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<JWTResponse> login(@RequestBody JWTRequest request, HttpServletRequest httpRequest) {

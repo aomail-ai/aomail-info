@@ -73,9 +73,13 @@ public class SecurityConfig {
                 // TODO: Add CSRF protection for production
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/login") // Disable CSRF for /api/login
+                        .ignoringRequestMatchers("/api/articles-ids")
+                        .ignoringRequestMatchers("/api/articles-data")
                         .ignoringRequestMatchers("/api/user/**") // Disable CSRF for /api/user/**
                 )
                 .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers("/api/articles-ids").permitAll()
+                        .requestMatchers("/api/articles-data").permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")

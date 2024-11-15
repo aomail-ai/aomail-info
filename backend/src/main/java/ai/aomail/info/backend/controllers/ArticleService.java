@@ -6,15 +6,12 @@ import ai.aomail.info.backend.repositories.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-
 @Service
-public class ArticleController implements ArticleInterface {
+public class ArticleService implements ArticleInterface {
     @Autowired
     private final ArticleRepository articleRepository;
 
-    public ArticleController(ArticleRepository articleRepository) {
+    public ArticleService(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
     }
 
@@ -41,5 +38,4 @@ public class ArticleController implements ArticleInterface {
         }
         return false;
     }
-
 }
