@@ -1,28 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-// import { useSelector } from "react-redux"; // todo: use Redux
+import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { RootState } from "../redux/store.ts";
 
 const RecentlyVisitedPageMenu = () => {
-    const [recentlyVisited, setRecentlyVisited] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
-    const menuRef = useRef(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
 
-    interface Article {
-        id: number;
-        title: string;
-        url: string;
-    }
-
-    useEffect(() => {
-        const storedArticles: Article[] = JSON.parse(localStorage.getItem("recentlyVisited")) || [];
-        setRecentlyVisited(storedArticles);
-    }, []);
+    // Select recently visited articles from Redux store
+    const recentlyVisited = useSelector((state: RootState) => state.articles.recentlyViewed);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+    // Close menu when clicking outside
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
@@ -64,17 +57,17 @@ const RecentlyVisitedPageMenu = () => {
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="menu-button"
-                    tabIndex="-1"
+                    tabIndex={-1}
                 >
                     <div className="py-1" role="none">
                         {recentlyVisited.length > 0 ? (
-                            recentlyVisited.map((article, index) => (
+                            recentlyVisited.map((article) => (
                                 <Link
-                                    key={index}
-                                    to={article.url}
+                                    key={article.id}
+                                    to={`/articles/${article.id}`}
                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     role="menuitem"
-                                    tabIndex="-1"
+                                    tabIndex={-1}
                                 >
                                     {article.title}
                                 </Link>

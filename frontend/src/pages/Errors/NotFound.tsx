@@ -1,16 +1,19 @@
-import { router } from "../../main.tsx";
+// import { router } from "../../main.tsx";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 
 const NotFound = () => {
     const { t } = useTranslation();
 
+    const navigate = useNavigate();
+
     const goBack = () => {
-        router.navigate(-1);
+        navigate(-1);
     };
 
     const goHome = () => {
-        router.navigate("/");
+        navigate("/");
     };
 
 

@@ -6,6 +6,7 @@ import ai.aomail.info.backend.utils.ArticleDataResponse;
 import ai.aomail.info.backend.utils.ArticleRequest;
 import ai.aomail.info.backend.utils.ArticleSpecifications;
 import ai.aomail.info.backend.utils.GetArticleIdsRequest;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class GetArticleRestController {
     @PostMapping(value = "/articles-ids", produces = "application/json")
     public ResponseEntity<?> getArticleIds(@RequestBody GetArticleIdsRequest getArticleIdsRequest) {
         try {
-            boolean advanced = getArticleIdsRequest.getAdvanced();
+            boolean advanced = getArticleIdsRequest.isAdvanced();
             String sort = getArticleIdsRequest.getSort();
             String order = getArticleIdsRequest.getOrder();
             List<Integer> ids;
@@ -68,7 +69,7 @@ public class GetArticleRestController {
             } else {
                 String search = getArticleIdsRequest.getSearch();
 
-                if (search.isEmpty()) {
+                if (search == null) {
                     ids = articleRepository.findAllArticleIds();
                 } else {
                     ids = articleRepository.findAll(
@@ -102,15 +103,28 @@ public class GetArticleRestController {
 
             List<Article> articles = articleRepository.findArticleByIdIn(ids);
 
+            //
+            articles.forEach(article -> {
+                // Eagerly initialize the reactions and tags to avoid lazy loading issues
+                Hibernate.initialize(article.getReactions());
+                Hibernate.initialize(article.getTags());
+                logger.info("Successfully retrieved article with ID {}", article.getId());
+                logger.info("Reactions: {}", article.getReactions());
+                logger.info("Tags: {}", article.getTags());
+            });
+
             List<ArticleDataResponse> response = articles.stream()
                     .map(article -> new ArticleDataResponse(
                             article.getId(),
                             article.getTitle(),
                             article.getDescription(),
                             article.getContent(),
+                            article.getMiniatureUrl(),
                             article.getUser().getUsername(),
                             article.getCreatedAt(),
-                            article.getUpdatedAt()
+                            article.getUpdatedAt(),
+                            article.getReactions(),
+                            article.getTags()
                     ))
                     .toList();
 

@@ -72,10 +72,11 @@ public class ArticleRestController {
             String content = articleRequest.getContent();
             String title = articleRequest.getTitle();
             String description = articleRequest.getDescription();
+            String miniatureUrl = articleRequest.getMiniatureUrl();
 
-            if (content == null || title == null || description == null) {
+            if (content == null || title == null || description == null || miniatureUrl == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                        Map.of("error", "Title, content, and description are required")
+                        Map.of("error", "Title, content, description and miniature URL are required")
                 );
             }
 
@@ -83,6 +84,7 @@ public class ArticleRestController {
                     title,
                     description,
                     content,
+                    miniatureUrl,
                     appUserService.findByUsername(username)
             );
             articleRepository.save(article);

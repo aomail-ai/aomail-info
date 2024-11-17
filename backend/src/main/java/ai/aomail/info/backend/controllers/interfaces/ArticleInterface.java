@@ -11,8 +11,4 @@ public interface ArticleInterface {
     Article updateArticle(Article article);
 
     boolean deleteArticle(int id);
-
-
-    // TODO: Add method to find all article ids by search query
-    // TODO: Add method to find all article ids by advanced filters
 }

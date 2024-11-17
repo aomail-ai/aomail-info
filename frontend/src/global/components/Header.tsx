@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelectionModal from "./LanguageSelectionModal";
-import { AOMAIL_APP_URL } from "../cont.ts";
+import { AOMAIL_APP_URL } from "../constants.ts";
 import SearchBar from "./SearchBar.tsx";
 import RecentlyVisitedPageMenu from "./RecentlyVisitedPageMenu.tsx";
 

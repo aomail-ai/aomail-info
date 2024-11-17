@@ -1,8 +1,15 @@
 package ai.aomail.info.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
+@NoArgsConstructor
 public class Tag {
 
     @Id
@@ -14,35 +21,14 @@ public class Tag {
 
     @ManyToOne(fetch = FetchType.LAZY) // Optimize loading
     @JoinColumn(name = "article_id", nullable = false)
+    @JsonIgnore
     private Article article;
+
 
     public Tag(String name, Article article) {
         this.name = name;
         this.article = article;
     }
 
-    public Tag() {
 
-    }
-
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public void setArticle(Article article) {
-        this.article = article;
-    }
 }
