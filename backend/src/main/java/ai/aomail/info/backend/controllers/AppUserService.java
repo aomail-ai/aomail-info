@@ -34,7 +34,11 @@ public class AppUserService implements AppUserInterface {
 
     @Override
     public AppUser findByUsername(String username) {
-        return appUserRepository.findByUsername(username);
+        AppUser user = appUserRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
     }
 }
 

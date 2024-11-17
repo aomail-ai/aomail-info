@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { VERSION } from "../constants.ts";
 
 const Footer = () => {
     const { t } = useTranslation();
@@ -88,7 +89,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <p className="mt-6 text-sm text-slate-500 sm:mt-0">
-                    © 2024 Aomail. {t("footer.allRightsReserved")}
+                    {VERSION} © 2024 Aomail. {t("footer.allRightsReserved")}
                 </p>
             </div>
         </footer>

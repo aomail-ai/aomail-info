@@ -8,6 +8,7 @@ import Fox from "./pages/Fox";
 import Footer from "./global/components/Footer.tsx";
 import Header from "./global/components/Header.tsx";
 import NotAuthorized from "./pages/Errors/NotAuthorized.tsx";
+import Login from "./pages/Login/Login.tsx";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                 <main className="flex-grow bg-gray-50">
                     <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
                         <Route path="/article/:id" element={<ArticleDetail />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
