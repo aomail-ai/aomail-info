@@ -36,7 +36,7 @@ export async function getData(path: string, headers?: Record<string, string>): P
 }
 
 
-export async function postData(path: string, body: Record<string, never>): Promise<FetchDataResult> {
+export async function postData(path: string, body: Record<string, any>): Promise<FetchDataResult> {
     const requestOptions = {
         method: "POST",
         headers: {

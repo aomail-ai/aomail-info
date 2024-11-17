@@ -3,13 +3,13 @@ import { Article } from "../../types.ts";
 
 interface ArticlesState {
     ids: string[];
-    articles: Record<string, Article>;
+    articles: Article[];
     recentlyViewed: Article[];
 }
 
 const initialState: ArticlesState = {
     ids: [],
-    articles: {},
+    articles: [],
     recentlyViewed: []
 };
 

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import LanguageSelectionModal from "./LanguageSelectionModal";
 import { AOMAIL_APP_URL } from "../constants.ts";
 import SearchBar from "./SearchBar.tsx";
-import RecentlyVisitedPageMenu from "./RecentlyVisitedPageMenu.tsx";
 
 
 const allowedLanguages = ["fr", "en"];
@@ -70,7 +69,6 @@ const Header = () => {
                 {/* Desktop Menu */}
                 <div className={`hidden ${!isMobile ? "lg:flex" : "lg:hidden"} lg:flex-1 lg:justify-center`}>
                     <SearchBar />
-                    <RecentlyVisitedPageMenu />
                 </div>
 
                 <div
@@ -134,7 +132,6 @@ const Header = () => {
                                 {t("landingPage.constants.sections.home")}
                             </a>
                             <SearchBar />
-                            <RecentlyVisitedPageMenu />
                         </div>
                         <div className="space-y-2">
                             <a

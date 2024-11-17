@@ -1,44 +1,58 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { useAppSelector } from "../../../global/redux/hooks.ts";
-import { selectAllArticles } from "../../../global/redux/articles/selectors.ts";
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../../../global/redux/hooks";
+import { selectAllArticles } from "../../../global/redux/articles/selectors";
 import DOMPurify from "dompurify";
-
+import { postData } from "../../../global/fetchData";
+import { Article } from "../../../global/types";
 
 export default function ArticleDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const articles = useAppSelector(selectAllArticles);
-    const article = articles.find((article) => article.id === Number(id));
+    const [article, setArticle] = useState<Article | null>(null);
 
     useEffect(() => {
-        if (!article) {
-            navigate("/not-found");
-        }
-    }, [article, navigate]);
+        const fetchData = async () => {
+            try {
+                const foundArticle = articles.find((art) => art.id === Number(id));
+                if (foundArticle) {
+                    setArticle(foundArticle);
+                } else {
+                    const result = await postData("articles-data", { ids: [id] });
+                    if (result.success) {
+                        setArticle(result.data.articles[0]);
+                    } else {
+                        navigate("/not-found");
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch article:", error);
+                navigate("/not-found");
+            }
+        };
 
-    if (!article) return null;
+        if (id) fetchData();
+    }, [id, articles, navigate]);
 
+    if (!article) {
+        return <div>Loading...</div>;
+    }
 
     const sanitizedContent = DOMPurify.sanitize(article.content);
 
-
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        const timeFormat: Intl.DateTimeFormatOptions = {
+        return new Intl.DateTimeFormat("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric"
-        };
-        const formatter = new Intl.DateTimeFormat("en-US", timeFormat);
-        return formatter.format(date);
+        }).format(date);
     };
-
 
     return (
         <div className="py-12">
             <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Image */}
                 <img
                     src={article.miniatureUrl}
                     alt={article.title}
