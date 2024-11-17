@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-
 import Home from "./pages/Home/Home.tsx";
-import Articles from "./pages/Home/components/Articles.tsx";
 import ArticleDetail from "./pages/Home/components/ArticleDetail.tsx";
 import NotFound from "./pages/Errors/NotFound.tsx";
 import TermsOfService from "./pages/TermsOfService/TermsOfService.tsx";
@@ -19,7 +17,6 @@ function App() {
                 <main className="flex-grow bg-gray-50">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/articles" element={<Articles />} />
                         <Route path="/article/:id" element={<ArticleDetail />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

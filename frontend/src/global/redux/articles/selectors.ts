@@ -14,7 +14,7 @@ export const selectArticleById = (id: string) =>
 
 export const selectAllArticles = createSelector(
     selectArticlesState,
-    (articlesState) => Object.values(articlesState.articles)
+    (articlesState) => articlesState.articles
 );
 
 export const selectLoadingState = createSelector(

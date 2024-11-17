@@ -1,21 +1,27 @@
-import React, { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { RootState } from "../redux/store.ts";
+import { useEffect, useRef, useState } from "react";
+import { loadRecentlyViewedArticles } from "../redux/localStorage.ts";
+import { setRecentlyViewedArticles } from "../redux/articles/actions.ts";
+import { useAppDispatch } from "../redux/hooks.ts";
+import { Link } from "lucide-react";
 
 const RecentlyVisitedPageMenu = () => {
+    const dispatch = useAppDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
-    // Select recently visited articles from Redux store
-    const recentlyVisited = useSelector((state: RootState) => state.articles.recentlyViewed);
+    const [recentlyVisited, setRecentlyVisited] = useState([]);
+
+    useEffect(() => {
+        const recentlyVisited = loadRecentlyViewedArticles();
+        setRecentlyVisited(recentlyVisited);
+        dispatch(setRecentlyViewedArticles(recentlyVisited));
+    }, [dispatch]);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    // Close menu when clicking outside
-    React.useEffect(() => {
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+            if (menuRef.current) {
                 setIsOpen(false);
             }
         };

@@ -2,11 +2,15 @@ package ai.aomail.info.backend.utils;
 
 import ai.aomail.info.backend.models.Reaction;
 import ai.aomail.info.backend.models.Tag;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
 
+@Getter
+@Setter
 public class ArticleDataResponse {
     private final Integer id;
     private final String title;

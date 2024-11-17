@@ -21,10 +21,7 @@ public class AppUser {
     @Column(unique = true)
     private String username;
     private String password;
-
-    @Column(nullable = true)
     private String name;
-    @Column(nullable = true)
     private String surname;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

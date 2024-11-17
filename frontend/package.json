@@ -15,6 +15,7 @@
     "@react-three/fiber": "^8.15.16",
     "@reduxjs/toolkit": "^2.3.0",
     "@types/three": "^0.161.2",
+    "dompurify": "^3.2.0",
     "i18next": "^23.16.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "lucide-react": "^0.344.0",

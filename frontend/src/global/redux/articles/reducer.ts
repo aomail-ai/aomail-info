@@ -1,4 +1,3 @@
-// reducer.ts
 import { SET_ARTICLES_DATA, SET_IDS, SET_RECENTLY_VIEWED_ARTICLES } from "./constants.ts";
 import { Article } from "../../types.ts";
 
