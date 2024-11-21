@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,10 +39,18 @@ public class LoginRestController {
     public ResponseEntity<?> login(@RequestBody JWTRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         logger.info("Login request received for user: {}", request.getUsername());
 
-        // Authenticate user
-        manager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        try {
+            manager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+            logger.debug("Authentication succeeded");
+        } catch (Exception e) {
+            logger.debug("Authentication failed: {}", e.getMessage());
+            throw e;
+        }
+        logger.debug("After authentication logic...");
+
+
 
         // Fetch user details
         AppUser appUser = appUserService.findByUsername(request.getUsername());
