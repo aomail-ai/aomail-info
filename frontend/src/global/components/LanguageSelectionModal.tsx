@@ -1,14 +1,18 @@
 import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { setLanguage } from "../redux/user/actions.ts";
 
 
 const LanguageModal = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
     const modalRef = useRef(null);
+    const dispatch = useDispatch();
 
     const selectLanguage = (language) => {
         localStorage.setItem("language", language);
         i18n.changeLanguage(language);
+        dispatch(setLanguage(language));
         onClose();
     };
 

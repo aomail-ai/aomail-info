@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import { fetchWithToken } from "../../global/security.ts";
+import { API_BASE_URL } from "../../global/constants.ts";
+import NotificationTimer from "../../global/components/NotificationTimer.tsx";
+import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 
 const PostArticle = () => {
     const [title, setTitle] = useState("");
@@ -8,9 +12,13 @@ const PostArticle = () => {
     const [content, setContent] = useState("");
     const [tags, setTags] = useState<string[]>([]);
     const [miniatureFile, setMiniatureFile] = useState<File | null>(null);
-    const [error, setError] = useState("");
     const [tagInput, setTagInput] = useState("");
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationTitle, setNotificationTitle] = useState("");
+    const [notificationMessage, setNotificationMessage] = useState("");
+    const [backgroundColor, setBackgroundColor] = useState("");
     const editorRef = useRef<Quill | null>(null);
+    const timerId = useRef<number>(0);
 
     useEffect(() => {
         if (!editorRef.current) {
@@ -37,32 +45,73 @@ const PostArticle = () => {
         }
     }, []);
 
+
+    function displayPopup(type: "success" | "error", title: string, message: string) {
+        if (type === "error") {
+            displayErrorPopup(
+                setShowNotification,
+                setNotificationTitle,
+                setNotificationMessage,
+                setBackgroundColor,
+                title,
+                message
+            );
+        } else {
+            displaySuccessPopup(
+                setShowNotification,
+                setNotificationTitle,
+                setNotificationMessage,
+                setBackgroundColor,
+                title,
+                message
+            );
+        }
+        timerId.current = setTimeout(() => {
+            setShowNotification(false);
+        }, 4000);
+    }
+
+
     const postArticle = async () => {
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
         formData.append("content", content);
         formData.append("tags", JSON.stringify(tags));
+
         if (miniatureFile) {
             formData.append("miniature", miniatureFile);
         }
 
-        const result = await postData("user/article", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
+        const response = await fetchWithToken(`${API_BASE_URL}/user/article`, {
+            method: "POST",
+            body: formData
         });
 
-        if (!result.success) {
-            setError(result.error as string);
+        if (!response) {
+            console.log("No server response");
+            displayPopup("error", "Failed to post article", "No server response");
             return;
         }
-        alert("Article posted successfully!");
+
+        const data = await response.json();
+
+        if (response.ok) {
+            displayPopup("success", "Success", "Article posted successfully!");
+            setTitle("");
+            setDescription("");
+            setContent("");
+            setTags([]);
+            setMiniatureFile(null);
+        } else {
+            console.log("Error posting article:", data.error ? data.error : "Unknown error");
+            displayPopup("error", "Failed to post article", data.error ? data.error : "Unknown error");
+        }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setMiniatureFile(e.target.files[0]);
+        if (e.target.files && e.target?.files[0]) {
+            setMiniatureFile(e.target?.files[0]);
         }
     };
 
@@ -79,10 +128,15 @@ const PostArticle = () => {
 
     return (
         <>
+            <NotificationTimer
+                showNotification={showNotification}
+                notificationTitle={notificationTitle}
+                notificationMessage={notificationMessage}
+                backgroundColor={backgroundColor}
+                onDismiss={() => setShowNotification(false)}
+            />
             <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold mb-6">Post an Article</h1>
-                {error && <p className="text-red-500 mb-4">{error}</p>}
-
                 <div className="space-y-4">
                     {/* Title Input */}
                     <input

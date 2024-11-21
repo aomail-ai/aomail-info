@@ -1,7 +1,6 @@
 import { Article } from "../../../global/types.ts";
 import { useAppDispatch, useAppSelector } from "../../../global/redux/hooks.ts";
 import { setRecentlyViewedArticles } from "../../../global/redux/articles/actions.ts";
-import { saveRecentlyViewedArticles } from "../../../global/redux/localStorage.ts";
 import { useNavigate } from "react-router-dom";
 
 interface ArticleCardProps {
@@ -15,7 +14,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
     const readMore = () => {
         dispatch(setRecentlyViewedArticles([article, ...recentlyViewedArticles]));
-        saveRecentlyViewedArticles([article, ...recentlyViewedArticles]);
         navigate(`/article/${article.id}`);
     };
     return (

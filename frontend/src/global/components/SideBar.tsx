@@ -66,10 +66,10 @@ const SideBar = () => {
                                     <User className="mr-2" />
                                     Profile
                                 </button>
-                                <button className="flex items-center mb-2">
+                                <a href={"/post-article"} className="flex items-center mb-2">
                                     <PencilLine className="mr-2" />
                                     Post an article
-                                </button>
+                                </a>
                                 <button className="flex items-center mb-2">
                                     <Newspaper className="mr-2" />
                                     Manage articles

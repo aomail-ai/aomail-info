@@ -1,5 +1,5 @@
 import { UserAction, UserState } from "./types.ts";
-import { SET_IS_CONNECTED, SET_USER_STATE } from "./constants.ts";
+import { SET_IS_CONNECTED, SET_LANGUAGE, SET_USER_STATE } from "./constants.ts";
 
 const initialState: UserState = {
     language: "en",
@@ -19,6 +19,11 @@ export const userReducer = (state = initialState, action: UserAction): UserState
             return {
                 ...state,
                 ...action.payload
+            };
+        case SET_LANGUAGE:
+            return {
+                ...state,
+                language: action.payload
             };
         default:
             return state;
