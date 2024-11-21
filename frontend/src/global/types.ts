@@ -1,3 +1,6 @@
+import { ArticlesState } from "./redux/articles/types.ts";
+import { UserState } from "./redux/user/types.ts";
+
 export interface FetchDataResult {
     success: boolean;
     data?: any;
@@ -25,4 +28,9 @@ export interface Article {
     updatedAt: string;
     reactions: Reaction[];
     Tags: Tag[];
+}
+
+export interface RootState {
+    articles: ArticlesState;
+    user: UserState;
 }

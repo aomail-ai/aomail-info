@@ -1,11 +1,6 @@
 import { SET_ARTICLES_DATA, SET_IDS, SET_RECENTLY_VIEWED_ARTICLES } from "./constants.ts";
-import { Article } from "../../types.ts";
+import { ArticlesAction, ArticlesState } from "./types.ts";
 
-interface ArticlesState {
-    ids: string[];
-    articles: Article[];
-    recentlyViewed: Article[];
-}
 
 const initialState: ArticlesState = {
     ids: [],
@@ -13,7 +8,7 @@ const initialState: ArticlesState = {
     recentlyViewed: []
 };
 
-export const articlesReducer = (state = initialState, action: any): ArticlesState => {
+export const articlesReducer = (state = initialState, action: ArticlesAction): ArticlesState => {
     switch (action.type) {
         case SET_RECENTLY_VIEWED_ARTICLES:
             return {
