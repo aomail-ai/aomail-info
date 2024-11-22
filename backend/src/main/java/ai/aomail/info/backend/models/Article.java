@@ -69,6 +69,10 @@ public class Article {
         this.createdAt = new Date();
     }
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
 
     @PreUpdate
     protected void onUpdate() {

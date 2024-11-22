@@ -46,7 +46,7 @@ const PostArticle = () => {
     }, []);
 
 
-    function displayPopup(type: "success" | "error", title: string, message: string) {
+    const displayPopup = (type: "success" | "error", title: string, message: string) => {
         if (type === "error") {
             displayErrorPopup(
                 setShowNotification,

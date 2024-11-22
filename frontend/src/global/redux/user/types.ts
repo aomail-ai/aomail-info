@@ -3,8 +3,11 @@ import { SET_IS_CONNECTED, SET_LANGUAGE, SET_USER_STATE } from "./constants.ts";
 export interface UserState {
     language: string;
     isConnected: boolean;
+    username: string;
     name: string;
     surname: string;
+    id: number;
+    createdAt: string;
 }
 
 interface SetIsConnectedAction {
@@ -19,7 +22,14 @@ interface SetLanguageAction {
 
 interface SetUserStateAction {
     type: typeof SET_USER_STATE;
-    payload: { language: string, isConnected: boolean, name: string, surname: string, };
+    payload: {
+        language: string,
+        isConnected: boolean,
+        username: string,
+        surname: string,
+        id: number,
+        createdAt: string
+    };
 }
 
 export type UserAction =

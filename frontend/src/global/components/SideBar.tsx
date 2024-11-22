@@ -35,7 +35,7 @@ const SideBar = () => {
                 </button>
             }
             <div
-                className={`transition-all duration-300 ease-in-out bg-gray-100 shadow-lg overflow-hidden ${
+                className={`transition-all duration-300 ease-in-out bg-gray-100 overflow-hidden ${
                     visible ? "w-64" : "w-0"
                 }`}
                 style={{ height: "100vh" }}
@@ -86,10 +86,10 @@ const SideBar = () => {
                         ) :
                         <>
                             <h2 className="text-lg font-semibold mb-2">Account</h2>
-                            <button className="flex items-center mb-2">
+                            <a href="/login" className="flex items-center mb-2">
                                 <LogIn className="mr-2" />
                                 Login
-                            </button>
+                            </a>
                         </>
                     }
                 </div>

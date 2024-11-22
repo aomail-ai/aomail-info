@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,8 +29,6 @@ public class LoginRestController {
     @Autowired
     private AuthenticationManager manager;
     @Autowired
-    private JWTHelper helper;
-    @Autowired
     @Qualifier("appUserService")
     private AppUserService appUserService;
 
@@ -40,16 +37,16 @@ public class LoginRestController {
         logger.info("Login request received for user: {}", request.getUsername());
 
         try {
+            logger.debug("Before authentication logic...");
             manager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             logger.debug("Authentication succeeded");
         } catch (Exception e) {
             logger.debug("Authentication failed: {}", e.getMessage());
-            throw e;
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
         logger.debug("After authentication logic...");
-
 
 
         // Fetch user details
@@ -82,8 +79,14 @@ public class LoginRestController {
 
         // Return a success response
         logger.info("Login successful for user: {}", request.getUsername());
-        return ResponseEntity.ok(Map.of("message", "Login successful"));
+        return ResponseEntity.ok(Map.of(
+                "message", "Login successful",
+                "username", appUser.getUsername(),
+                "name", appUser.getName(),
+                "surname", appUser.getSurname(),
+                "createdAt", appUser.getCreatedAt(),
+                "id", appUser.getId()
+        ));
     }
-
 }
 

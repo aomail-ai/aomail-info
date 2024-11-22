@@ -12,6 +12,8 @@ import PostArticle from "./pages/PostArticle/PostArticle.tsx";
 import Sidebar from "./global/components/SideBar.tsx";
 import { useSelector } from "react-redux";
 import { selectIsConnected } from "./global/redux/user/selectors.ts";
+import Login from "./pages/Login/Login.tsx";
+import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 
 
 const RequireAuth = ({ Component }) => {
@@ -28,6 +30,8 @@ function App() {
                     <main className="flex-grow p-6 bg-gray-50">
                         <Routes>
                             <Route path="/" element={<Home />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/dashboard" element={<RequireAuth Component={Dashboard} />} />
                             <Route path="/post-article" element={<RequireAuth Component={PostArticle} />} />
                             <Route path="/article/:id" element={<ArticleDetail />} />
                             <Route path="/terms-of-service" element={<TermsOfService />} />
