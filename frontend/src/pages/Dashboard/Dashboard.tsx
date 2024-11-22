@@ -61,8 +61,8 @@ const Dashboard = () => {
                     displayPopup("error", "Failed to fetch articles", result.error as string);
                     return;
                 }
+                setArticles(result.data.articles);
                 dispatch(setArticlesData(result.data.articles));
-
                 setLoading(false);
             };
             fetchArticles();

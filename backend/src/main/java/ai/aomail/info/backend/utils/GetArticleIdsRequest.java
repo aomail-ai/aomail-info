@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 public class GetArticleIdsRequest {
-
+    private int userId;
     private String search;
     private String title;
     private String description;

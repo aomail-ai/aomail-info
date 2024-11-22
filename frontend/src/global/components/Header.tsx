@@ -19,7 +19,7 @@ const Header = () => {
     const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
     useEffect(() => {
-        const storedLanguage = localStorage.getItem("language") || "en";
+        const storedLanguage = localStorage.getItem("i18nextLng") || "en";
         if (allowedLanguages.includes(storedLanguage)) {
             setCurrentLanguage(storedLanguage);
             i18n.changeLanguage(storedLanguage);

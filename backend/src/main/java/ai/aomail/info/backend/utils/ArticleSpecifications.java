@@ -152,6 +152,52 @@ public class ArticleSpecifications {
 
             // Combine predicates with AND
             Predicate combinedPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            assert query != null;
+            query.where(combinedPredicate);
+
+            // Add sorting logic
+            if (sort != null && !sort.isEmpty()) {
+                Expression<?> sortField;
+                switch (sort) {
+                    case "updatedAt":
+                        sortField = root.get("updatedAt");
+                        break;
+                    case "numberOfReactions":
+                        // Ensure the query groups by ID to avoid aggregate issues
+                        Join<Article, Reaction> reactionJoin = root.join("reactions", JoinType.LEFT);
+                        query.groupBy(root.get("id"));
+                        sortField = criteriaBuilder.count(reactionJoin);
+                        break;
+                    default:
+                        sortField = root.get("updatedAt"); // Default sort by updatedAt
+                        break;
+                }
+
+                // Apply ordering
+                if ("desc".equalsIgnoreCase(order)) {
+                    query.orderBy(criteriaBuilder.desc(sortField));
+                } else {
+                    query.orderBy(criteriaBuilder.asc(sortField));
+                }
+            }
+
+            return query.getRestriction();
+        };
+    }
+
+    public static Specification<Article> filterArticlesByUserId(int userId, String sort, String order) {
+
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.equal(
+                    root.get("user").get("id"),
+                    userId
+            ));
+
+            // Combine predicates with AND
+            Predicate combinedPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            assert query != null;
             query.where(combinedPredicate);
 
             // Add sorting logic

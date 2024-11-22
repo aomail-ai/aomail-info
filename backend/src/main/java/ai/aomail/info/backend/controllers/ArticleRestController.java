@@ -1,10 +1,12 @@
 package ai.aomail.info.backend.controllers;
 
 import ai.aomail.info.backend.models.Article;
+import ai.aomail.info.backend.models.Session;
 import ai.aomail.info.backend.models.Tag;
 import ai.aomail.info.backend.repositories.ArticleRepository;
+import ai.aomail.info.backend.repositories.SessionRepository;
 import ai.aomail.info.backend.repositories.TagRepository;
-import ai.aomail.info.backend.security.JWTHelper;
+import ai.aomail.info.backend.security.SessionHelper;
 import ai.aomail.info.backend.utils.ArticleRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -28,26 +30,26 @@ public class ArticleRestController {
     private final Logger logger = LoggerFactory.getLogger(ArticleRestController.class);
     private final ArticleRepository articleRepository;
     private final TagRepository tagRepository;
+    private final SessionRepository sessionRepository;
 
     @Autowired
     @Qualifier("appUserService")
     private AppUserService appUserService;
 
-    public ArticleRestController(ArticleRepository articleRepository, TagRepository tagRepository) {
+    public ArticleRestController(ArticleRepository articleRepository, TagRepository tagRepository, SessionRepository sessionRepository) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @RequestMapping(value = "/user/article", produces = "application/json")
     public ResponseEntity<?> handleRequest(@RequestBody ArticleRequest articleRequest, HttpServletRequest httpRequest) {
+        logger.debug("Received article request");
         String method = httpRequest.getMethod();
-        String token = extractToken(httpRequest);
+        String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
+        Session session = sessionRepository.findBySessionId(sessionId);
+        String username = session.getUser().getUsername();
 
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
-        }
-
-        String username = JWTHelper.extractUsername(token);
         logger.info("Received {} request from user: {}", method, username);
 
         return switch (method) {

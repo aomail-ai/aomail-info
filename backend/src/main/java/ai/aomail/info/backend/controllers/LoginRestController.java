@@ -1,10 +1,11 @@
 package ai.aomail.info.backend.controllers;
 
 import ai.aomail.info.backend.models.AppUser;
-import ai.aomail.info.backend.security.JWTHelper;
-import ai.aomail.info.backend.security.JWTRequest;
+import ai.aomail.info.backend.models.Session;
+import ai.aomail.info.backend.repositories.SessionRepository;
+import ai.aomail.info.backend.security.LoginRequest;
+import ai.aomail.info.backend.security.SessionHelper;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,26 +19,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.Map;
 
 
 @RestController
 @RequestMapping("/api")
 public class LoginRestController {
-
     private final Logger logger = LoggerFactory.getLogger(LoginRestController.class);
+
     @Autowired
     private AuthenticationManager manager;
+
     @Autowired
     @Qualifier("appUserService")
     private AppUserService appUserService;
 
+    @Autowired
+    private SessionRepository refreshTokenRepository;
+
+    @Autowired
+    private SessionRepository findSessionRepository;
+
     @PostMapping(value = "/login", produces = "application/json")
-    public ResponseEntity<?> login(@RequestBody JWTRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse httpResponse) {
         logger.info("Login request received for user: {}", request.getUsername());
 
         try {
-            logger.debug("Before authentication logic...");
             manager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
@@ -46,38 +54,43 @@ public class LoginRestController {
             logger.debug("Authentication failed: {}", e.getMessage());
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
-        logger.debug("After authentication logic...");
 
-
-        // Fetch user details
         AppUser appUser = appUserService.findByUsername(request.getUsername());
-        String issuer = httpRequest.getRequestURL().toString();
 
-        // Generate tokens
-        String token = JWTHelper.generateToken(appUser, issuer);
-        String refreshToken = JWTHelper.generateRefreshToken(appUser, issuer);
+        // Ensure the session ID is unique
+        String sessionId;
+        do {
+            sessionId = SessionHelper.generateSessionID();
+        } while (findSessionRepository.findBySessionId(sessionId) != null); // Check if sessionId already exists
 
-        // Set tokens as HTTP-only cookies
-        int accessTokenExpiry = 15 * 60; // 15 minutes in seconds
-        int refreshTokenExpiry = 7 * 24 * 60 * 60; // 7 days in seconds
+        // Create the session cookie
+        Cookie sessionCookie = new Cookie("session", sessionId);
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(true);
+        sessionCookie.setPath("/");
+        sessionCookie.setMaxAge(SessionHelper.SESSION_ID_EXPIRATION);
 
-        Cookie accessTokenCookie = new Cookie("accessToken", token);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // Ensure this is sent only over HTTPS
-        accessTokenCookie.setPath("/"); // Accessible across the app
-        accessTokenCookie.setMaxAge(accessTokenExpiry); // Expiry time
+        // Set session expiry time (7 days from now)
+        Date expiryDate = new Date(System.currentTimeMillis() + (SessionHelper.SESSION_ID_EXPIRATION * 1000));  // milliseconds
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(refreshTokenExpiry);
+        // Save session in the database
+        try {
+            Session session = findSessionRepository.findByUser(appUser);
+            if (session != null) {
+                session.setSessionId(sessionId);
+                session.setExpiryDate(expiryDate);
+                refreshTokenRepository.save(session);
+            } else {
+                Session newSession = new Session(sessionId, appUser, expiryDate);
+                refreshTokenRepository.save(newSession);
+            }
+        } catch (Exception e) {
+            logger.error("Error while updating session: {}", e.getMessage());
+        }
 
-        // Add cookies to the response
-        httpResponse.addCookie(accessTokenCookie);
-        httpResponse.addCookie(refreshTokenCookie);
+        // Add session cookie to the response
+        httpResponse.addCookie(sessionCookie);
 
-        // Return a success response
         logger.info("Login successful for user: {}", request.getUsername());
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
@@ -89,4 +102,3 @@ public class LoginRestController {
         ));
     }
 }
-

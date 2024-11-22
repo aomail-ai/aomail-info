@@ -37,11 +37,16 @@ public class GetArticleRestController {
     public ResponseEntity<?> getArticleIds(@RequestBody GetArticleIdsRequest getArticleIdsRequest) {
         try {
             boolean advanced = getArticleIdsRequest.isAdvanced();
+            int userId = getArticleIdsRequest.getUserId();
             String sort = getArticleIdsRequest.getSort();
             String order = getArticleIdsRequest.getOrder();
             List<Integer> ids;
 
-            if (advanced) {
+            if (userId != -1) {
+                ids = articleRepository.findAll(
+                        ArticleSpecifications.filterArticlesByUserId(userId, sort, order)
+                ).stream().map(Article::getId).collect(Collectors.toList());
+            } else if (advanced) {
                 String title = getArticleIdsRequest.getTitle();
                 String description = getArticleIdsRequest.getDescription();
                 String authorName = getArticleIdsRequest.getAuthorName();

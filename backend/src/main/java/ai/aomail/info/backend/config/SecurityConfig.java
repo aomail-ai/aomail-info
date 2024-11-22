@@ -2,11 +2,11 @@ package ai.aomail.info.backend.config;
 
 import ai.aomail.info.backend.models.AppUser;
 import ai.aomail.info.backend.repositories.AppUserRepository;
-import ai.aomail.info.backend.security.JWTAuthenticationFilter;
-import ai.aomail.info.backend.security.JWTHelper;
+import ai.aomail.info.backend.security.SessionFilter;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,19 +23,14 @@ import java.util.logging.Logger;
 @Configuration
 public class SecurityConfig {
     private final Logger logger = Logger.getLogger(SecurityConfig.class.getName());
-    private final JWTHelper jwtHelper;
     private final AppUserRepository appUserRepository;
-    private final JWTAuthenticationFilter filter;
+    private final SessionFilter sessionFilter;
 
-
-    public SecurityConfig(
-            JWTHelper jwtHelper,
-            AppUserRepository appUserRepository,
-            JWTAuthenticationFilter filter
+    public SecurityConfig(AppUserRepository appUserRepository,
+                          @Lazy SessionFilter sessionFilter
     ) {
-        this.jwtHelper = jwtHelper;
         this.appUserRepository = appUserRepository;
-        this.filter = filter;
+        this.sessionFilter = sessionFilter;
     }
 
 
@@ -48,8 +43,8 @@ public class SecurityConfig {
             admin.setName("Admin");
             admin.setSurname("Admin");
             admin.setUsername(adminUsername);
-            admin.setPassword(passwordEncoder().encode("password")); // Encode the password
-            admin.setAdministrator(true); // Set admin role (assuming you have an 'administrator' field)
+            admin.setPassword(passwordEncoder().encode("password"));
+            admin.setAdministrator(true);
             appUserRepository.save(admin);
             logger.info("Default admin user created successfully.");
         } else {
@@ -82,23 +77,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource())) // Apply the CORS configuration from the CorsConfigurationSource bean
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/login") // Disable CSRF for /api/login
+                        .ignoringRequestMatchers("/api/login")
                         .ignoringRequestMatchers("/api/articles-ids")
                         .ignoringRequestMatchers("/api/articles-data")
-                        .ignoringRequestMatchers("/api/user/**") // Disable CSRF for /api/user/**
+                        .ignoringRequestMatchers("/api/user/**")
                 )
                 .authorizeHttpRequests(authorization -> authorization
-                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/articles-ids").permitAll()
                         .requestMatchers("/api/articles-data").permitAll()
                         .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/user/**").hasAuthority("USER")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class) // Use the JWT filter
+                .addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

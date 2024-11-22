@@ -12,7 +12,7 @@ const resources = {
 
 // Detect initial locale from localStorage or default to navigator's language or English
 const initialLocale =
-    (typeof localStorage !== "undefined" && localStorage.getItem("language")) ||
+    (typeof localStorage !== "undefined" && localStorage.getItem("i18nextLng")) ||
     navigator.language.split("-")[0] ||
     "en";
 
@@ -32,6 +32,6 @@ i18n
 // Set up a listener to persist the locale in localStorage
 i18n.on("languageChanged", (lng) => {
     if (typeof localStorage !== "undefined") {
-        localStorage.setItem("language", lng);
+        localStorage.setItem("i18nextLng", lng);
     }
 });
