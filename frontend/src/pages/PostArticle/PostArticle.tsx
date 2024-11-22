@@ -29,15 +29,33 @@ const PostArticle = () => {
                         [{ header: "1" }, { header: "2" }, { font: [] }],
                         [{ list: "ordered" }, { list: "bullet" }],
                         ["bold", "italic", "underline", "strike", "blockquote"],
-                        ["link", "image"],
+                        ["link"],
                         [{ align: [] }],
                         [{ color: [] }, { background: [] }],
                         ["clean"]
-                    ]
+                    ],
+                    clipboard: {
+                        matchVisual: false
+                    }
                 }
             });
 
             if (editorRef.current instanceof Quill) {
+                // Remove pasted images
+                const Clipboard = Quill.import("modules/clipboard");
+
+                class CustomClipboard extends Clipboard {
+                    onPaste(e) {
+                        const clipboardData = e.clipboardData;
+                        const text = clipboardData.getData("text/plain");
+                        editorRef.current!.clipboard.dangerouslyPasteHTML(0, text);
+                        editorRef.current?.setContents([]);
+                        e.preventDefault();
+                    }
+                }
+
+                Quill.register("modules/clipboard", CustomClipboard, true);
+
                 editorRef.current.on("text-change", () => {
                     setContent(editorRef.current!.root.innerHTML);
                 });
@@ -69,7 +87,7 @@ const PostArticle = () => {
         timerId.current = setTimeout(() => {
             setShowNotification(false);
         }, 4000);
-    }
+    };
 
 
     const postArticle = async () => {
@@ -83,13 +101,12 @@ const PostArticle = () => {
             formData.append("miniature", miniatureFile);
         }
 
-        const response = await fetchWithToken(`${API_BASE_URL}/user/article`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
             method: "POST",
             body: formData
         });
 
         if (!response) {
-            console.log("No server response");
             displayPopup("error", "Failed to post article", "No server response");
             return;
         }

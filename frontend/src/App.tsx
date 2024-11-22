@@ -10,14 +10,14 @@ import Header from "./global/components/Header.tsx";
 import NotAuthorized from "./pages/Errors/NotAuthorized.tsx";
 import PostArticle from "./pages/PostArticle/PostArticle.tsx";
 import Sidebar from "./global/components/SideBar.tsx";
-import { useSelector } from "react-redux";
-import { selectIsConnected } from "./global/redux/user/selectors.ts";
 import Login from "./pages/Login/Login.tsx";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
+import { loadUserState } from "./global/localStorage.ts";
 
 
 const RequireAuth = ({ Component }) => {
-    return useSelector(selectIsConnected) ? <Component /> : <Navigate to="/not-authorized" />;
+    const userState = loadUserState();
+    return userState?.isConnected ? <Component /> : <Navigate to="/not-authorized" />;
 };
 
 function App() {

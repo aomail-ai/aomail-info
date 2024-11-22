@@ -12,12 +12,12 @@ import {
     Rocket,
     User
 } from "lucide-react";
-import { selectIsConnected } from "../redux/user/selectors.ts";
-import { useAppSelector } from "../redux/hooks.ts";
+import { loadUserState } from "../localStorage.ts";
 
 const SideBar = () => {
     const [visible, setVisible] = useState(false);
-    const isConnected = useAppSelector(selectIsConnected);
+    const userState = loadUserState();
+    const isConnected = userState?.isConnected;
     const toggleVisibility = () => {
         setVisible(!visible);
     };
@@ -74,10 +74,10 @@ const SideBar = () => {
                                     <Newspaper className="mr-2" />
                                     Manage articles
                                 </button>
-                                <button className="flex items-center mb-2">
+                                <a href="/dashboard" className="flex items-center mb-2">
                                     <Gauge className="mr-2" />
                                     Dashboard
-                                </button>
+                                </a>
                                 <button className="flex items-center mb-2">
                                     <LogOut className="mr-2" />
                                     Logout

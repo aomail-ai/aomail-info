@@ -7,162 +7,167 @@ import ai.aomail.info.backend.repositories.ArticleRepository;
 import ai.aomail.info.backend.repositories.SessionRepository;
 import ai.aomail.info.backend.repositories.TagRepository;
 import ai.aomail.info.backend.security.SessionHelper;
-import ai.aomail.info.backend.utils.ArticleRequest;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user/article")
 public class ArticleRestController {
     private final Logger logger = LoggerFactory.getLogger(ArticleRestController.class);
     private final ArticleRepository articleRepository;
     private final TagRepository tagRepository;
     private final SessionRepository sessionRepository;
+    private final AppUserService appUserService;
 
     @Autowired
-    @Qualifier("appUserService")
-    private AppUserService appUserService;
-
-    public ArticleRestController(ArticleRepository articleRepository, TagRepository tagRepository, SessionRepository sessionRepository) {
+    public ArticleRestController(ArticleRepository articleRepository, TagRepository tagRepository, SessionRepository sessionRepository, AppUserService appUserService) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
         this.sessionRepository = sessionRepository;
+        this.appUserService = appUserService;
     }
 
-    @RequestMapping(value = "/user/article", produces = "application/json")
-    public ResponseEntity<?> handleRequest(@RequestBody ArticleRequest articleRequest, HttpServletRequest httpRequest) {
-        logger.debug("Received article request");
-        String method = httpRequest.getMethod();
-        String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
-        Session session = sessionRepository.findBySessionId(sessionId);
+    @PostMapping(consumes = "multipart/form-data", produces = "application/json")
+    public ResponseEntity<?> createArticle(
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("content") String content,
+            @RequestParam("tags") String tagsJson,
+            @RequestParam("miniature") MultipartFile miniatureFile,
+            HttpServletRequest httpRequest
+    ) throws IOException {
+        logger.debug("POST: Creating an article");
+
+        Session session = validateSession(httpRequest);
+        if (session == null) return unauthorizedResponse();
+
         String username = session.getUser().getUsername();
+        validateArticleFields(title, description, content, miniatureFile);
 
-        logger.info("Received {} request from user: {}", method, username);
+        String uniqueFilename = uploadMiniature(miniatureFile);
+        logger.debug("Miniature uploaded with filename: {}", uniqueFilename);
 
-        return switch (method) {
-            case "POST" -> postArticle(articleRequest, username);
-            case "PUT" -> updateArticle(articleRequest, username);
-            case "DELETE" -> deleteArticles(articleRequest, username);
-            default -> ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Map.of("error", "Method not allowed"));
-        };
+        Article article = new Article(title, description, content, uniqueFilename, appUserService.findByUsername(username));
+        articleRepository.save(article);
+        logger.debug("Article created and saved");
+
+        List<Tag> tags = processTags(tagsJson, article);
+        article.setTags(tags);
+        articleRepository.save(article);
+        logger.debug("Tags processed and linked to the article");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("msg", "Article posted successfully"));
     }
 
-    private String extractToken(HttpServletRequest httpRequest) {
-        String requestHeader = httpRequest.getHeader("Authorization");
-        return (requestHeader != null && requestHeader.startsWith("Bearer "))
-                ? requestHeader.substring("Bearer ".length())
-                : null;
-    }
+    @PutMapping(consumes = "multipart/form-data", produces = "application/json")
+    public ResponseEntity<?> updateArticle(
+            @RequestParam("id") int id,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("content") String content,
+            @RequestParam("tags") String tagsJson,
+            @RequestParam("miniature") MultipartFile miniatureFile,
+            HttpServletRequest httpRequest
+    ) throws IOException {
+        logger.debug("PUT: Updating an article with ID {}", id);
 
-    public ResponseEntity<?> postArticle(ArticleRequest articleRequest, String username) {
-        try {
-            logger.info("Processing POST request for user: {}", username);
+        Session session = validateSession(httpRequest);
+        if (session == null) return unauthorizedResponse();
 
-            String content = articleRequest.getContent();
-            String title = articleRequest.getTitle();
-            String description = articleRequest.getDescription();
-            String miniatureUrl = articleRequest.getMiniatureUrl();
-
-            if (content == null || title == null || description == null || miniatureUrl == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                        Map.of("error", "Title, content, description and miniature URL are required")
-                );
-            }
-
-            Article article = new Article(
-                    title,
-                    description,
-                    content,
-                    miniatureUrl,
-                    appUserService.findByUsername(username)
-            );
-            articleRepository.save(article);
-
-            List<String> tagNames = articleRequest.getTags();
-            List<Tag> tags = new ArrayList<>();
-            for (String tagName : tagNames) {
-                tagName = tagName.trim();
-                if (!tagName.isEmpty()) {
-                    Tag tag = tagRepository.findTagByName(tagName);
-                    if (tag == null) {
-                        tag = new Tag(tagName, article);
-                        tagRepository.save(tag);
-                    }
-                    tags.add(tag);
-                }
-            }
-
-            article.setTags(tags);
-            articleRepository.save(article);
-
-            logger.info("Article posted successfully by user: {}", username);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("msg", "Article posted successfully"));
-        } catch (Exception e) {
-            logger.error("Error while posting an article", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error while posting the article"));
+        Article article = articleRepository.findById(id).orElse(null);
+        if (article == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Article not found"));
+        } else if (!article.getUser().equals(session.getUser())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not authorized to update this article"));
         }
+
+        validateArticleFields(title, description, content, miniatureFile);
+
+        String uniqueFilename = uploadMiniature(miniatureFile);
+        logger.debug("Miniature uploaded with filename: {}", uniqueFilename);
+
+        article.setTitle(title);
+        article.setDescription(description);
+        article.setContent(content);
+        article.setMiniatureFileName(uniqueFilename);
+
+        List<Tag> tags = processTags(tagsJson, article);
+        article.setTags(tags);
+        articleRepository.save(article);
+
+        logger.debug("Article updated successfully with ID {}", id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("msg", "Article updated successfully"));
     }
 
-    private ResponseEntity<?> updateArticle(ArticleRequest articleRequest, String username) {
-        try {
-            logger.info("Processing PUT request for user: {}", username);
-
-            int id = articleRequest.getId();
-            Article article = articleRepository.findArticleById(id);
-            if (article == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Article not found"));
-            }
-
-            String content = articleRequest.getContent();
-            String title = articleRequest.getTitle();
-            String description = articleRequest.getDescription();
-
-            if (title != null) article.setTitle(title);
-            if (description != null) article.setDescription(description);
-            if (content != null) article.setContent(content);
-
-            articleRepository.save(article);
-            logger.info("Article with ID {} updated successfully by user: {}", id, username);
-
-            return ResponseEntity.ok(Map.of("msg", "Article updated successfully"));
-        } catch (Exception e) {
-            logger.error("Error while updating the article", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error while updating the article"));
+    private String uploadMiniature(MultipartFile miniatureFile) throws IOException {
+        if (miniatureFile == null || miniatureFile.isEmpty()) {
+            throw new IllegalArgumentException("Miniature file is required");
         }
+
+        String originalFilename = miniatureFile.getOriginalFilename();
+        String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
+
+        Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureUrls/" + uniqueFilename);
+        Files.createDirectories(miniaturePath.getParent());
+        Files.write(miniaturePath, miniatureFile.getBytes());
+
+        return uniqueFilename;
     }
 
-    private ResponseEntity<?> deleteArticles(ArticleRequest articleRequest, String username) {
-        try {
-            logger.info("Processing DELETE request for user: {}", username);
+    private List<Tag> processTags(String tagsJson, Article article) throws IOException {
+        List<String> tagNames = new ObjectMapper().readValue(
+                tagsJson, new TypeReference<>() {
+                });
 
-            List<Integer> ids = articleRequest.getIds();
-            for (int id : ids) {
-                Article article = articleRepository.findArticleById(id);
-                if (article != null) {
-                    articleRepository.delete(article);
-                    logger.info("Deleted article with ID {} by user: {}", id, username);
-                } else {
-                    logger.warn("Article with ID {} not found. Skipping deletion.", id);
+        List<Tag> tags = new ArrayList<>();
+        for (String tagName : tagNames) {
+            tagName = tagName.trim();
+            if (!tagName.isEmpty()) {
+                Tag tag = tagRepository.findTagByName(tagName);
+                if (tag == null) {
+                    tag = new Tag(tagName, article);
+                    tagRepository.save(tag);
                 }
+                tags.add(tag);
             }
+        }
 
-            return ResponseEntity.ok(Map.of("msg", "Articles deleted successfully"));
-        } catch (Exception e) {
-            logger.error("Error while deleting articles", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error while deleting articles"));
+        return tags;
+    }
+
+    private Session validateSession(HttpServletRequest httpRequest) {
+        String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
+        return sessionRepository.findBySessionId(sessionId);
+    }
+
+    private ResponseEntity<Map<String, String>> unauthorizedResponse() {
+        logger.debug("Unauthorized access attempt");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Session not found"));
+    }
+
+    private void validateArticleFields(String title, String description, String content, MultipartFile miniatureFile) {
+        if (title == null || title.isEmpty() ||
+                description == null || description.isEmpty() ||
+                content == null || content.isEmpty() ||
+                (miniatureFile == null || miniatureFile.isEmpty())) {
+            throw new IllegalArgumentException("Title, content, description, and miniature file are required");
         }
     }
 }

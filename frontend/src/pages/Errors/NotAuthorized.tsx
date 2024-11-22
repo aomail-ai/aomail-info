@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { setIsConnected } from "../../global/redux/user/actions.ts";
+import { useDispatch } from "react-redux";
+import { saveUserState } from "../../global/localStorage.ts";
+import { useAppSelector } from "../../global/redux/hooks.ts";
 
 const NotAuthorized = () => {
     const { t } = useTranslation();
     const [countdown, setCountdown] = useState(5);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    dispatch(setIsConnected(false));
+    const userState = useAppSelector((state) => state.user);
+    saveUserState({ ...userState, isConnected: false });
 
     useEffect(() => {
         const timer = setInterval(() => {
             setCountdown((prevCountdown) => {
                 if (prevCountdown <= 1) {
                     clearInterval(timer);
-                    navigate("/");
+                    navigate("/login");
                     return 0;
                 }
                 return prevCountdown - 1;

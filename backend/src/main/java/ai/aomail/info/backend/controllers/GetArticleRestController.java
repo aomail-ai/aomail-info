@@ -124,7 +124,7 @@ public class GetArticleRestController {
                             article.getTitle(),
                             article.getDescription(),
                             article.getContent(),
-                            article.getMiniatureUrl(),
+                            article.getMiniatureFileName(),
                             article.getUser().getUsername(),
                             article.getCreatedAt(),
                             article.getUpdatedAt(),

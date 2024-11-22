@@ -14,8 +14,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 public class Article {
-
-    // Getters and setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -26,19 +24,19 @@ public class Article {
     @Setter
     private String description;
 
-    @Lob // Use Lob for large text fields
-    @Column(nullable = false) // Ensure content is required
+    @Lob
+    @Column(nullable = false)
     private String content;
 
-    private String miniatureUrl;
+    private String miniatureFileName;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Use LAZY to avoid loading unnecessary user data
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Temporal(TemporalType.TIMESTAMP) // Ensures correct mapping of Date/Time
-    @Column(nullable = false, updatable = false) // Created at is immutable
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = false)
     private Date createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -47,10 +45,10 @@ public class Article {
 
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reaction> reactions; // Added reactions relationship
+    private List<Reaction> reactions;
 
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true) // Handle child entity lifecycle
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags;
 
 
@@ -58,13 +56,13 @@ public class Article {
             String title,
             String description,
             String content,
-            String miniatureUrl,
+            String miniatureFileName,
             AppUser user
     ) {
         this.title = title;
         this.description = description;
         this.content = content;
-        this.miniatureUrl = miniatureUrl;
+        this.miniatureFileName = miniatureFileName;
         this.user = user;
         this.createdAt = new Date();
     }
