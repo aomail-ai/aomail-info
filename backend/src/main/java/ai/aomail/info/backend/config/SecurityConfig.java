@@ -64,7 +64,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // Frontend origin
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setAllowedHeaders(java.util.List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L); // Cache pre-flight response for 1 hour
 

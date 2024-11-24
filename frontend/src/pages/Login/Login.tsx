@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { postData } from "../../global/fetchData.ts";
 import { useNavigate } from "react-router-dom";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";

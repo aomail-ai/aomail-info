@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { postData } from "../../global/fetchData.ts";
 import { useAppDispatch } from "../../global/redux/hooks.ts";
 import { setArticlesData, setIds } from "../../global/redux/articles/actions.ts";
