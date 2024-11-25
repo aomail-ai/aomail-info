@@ -70,10 +70,10 @@ const SideBar = () => {
                                     <PencilLine className="mr-2" />
                                     Post an article
                                 </a>
-                                <button className="flex items-center mb-2">
+                                <a href="/manage-articles" className="flex items-center mb-2">
                                     <Newspaper className="mr-2" />
                                     Manage articles
-                                </button>
+                                </a>
                                 <a href="/dashboard" className="flex items-center mb-2">
                                     <Gauge className="mr-2" />
                                     Dashboard

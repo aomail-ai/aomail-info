@@ -33,7 +33,7 @@ const NotAuthorized = () => {
     }, []);
 
     const redirectNow = (): void => {
-        navigate("/");
+        navigate("/login");
     };
 
     return (

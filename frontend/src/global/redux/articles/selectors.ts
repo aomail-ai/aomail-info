@@ -9,3 +9,8 @@ export const selectAllArticles = createSelector(
     selectArticlesState,
     (articlesState: ArticlesState) => articlesState.articles
 );
+
+export const selectFetchIds = createSelector(
+    selectArticlesState,
+    (articlesState: ArticlesState) => articlesState.ids
+);

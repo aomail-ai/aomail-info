@@ -13,6 +13,7 @@ import Sidebar from "./global/components/SideBar.tsx";
 import Login from "./pages/Login/Login.tsx";
 import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import { loadUserState } from "./global/localStorage.ts";
+import ManageArticles from "./pages/ManageArticles/ManageArticles.tsx";
 
 
 const RequireAuth = ({ Component }) => {
@@ -33,6 +34,7 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/dashboard" element={<RequireAuth Component={Dashboard} />} />
                             <Route path="/post-article" element={<RequireAuth Component={PostArticle} />} />
+                            <Route path="/manage-articles" element={<RequireAuth Component={ManageArticles} />} />
                             <Route path="/article/:id" element={<ArticleDetail />} />
                             <Route path="/terms-of-service" element={<TermsOfService />} />
                             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
