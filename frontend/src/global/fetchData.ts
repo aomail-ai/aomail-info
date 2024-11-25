@@ -11,26 +11,41 @@ export async function getData(path: string, headers?: Record<string, string>): P
         }
     };
 
-    const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
 
-    if (!response) {
+        if (!response) {
+            return {
+                success: false,
+                error: "No server response"
+            };
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch {
+            return {
+                success: false,
+                error: "Invalid JSON response from server"
+            };
+        }
+
+        if (response.ok) {
+            return {
+                success: true,
+                data: data
+            };
+        } else {
+            return {
+                success: false,
+                error: data?.error || "Unknown error occurred"
+            };
+        }
+    } catch (fetchError) {
         return {
             success: false,
-            error: "No server response"
-        };
-    }
-
-    const data = await response.json();
-
-    if (response.ok) {
-        return {
-            success: true,
-            data: data
-        };
-    } else {
-        return {
-            success: false,
-            error: data.error ? data.error : "Unknown error"
+            error: "Network error or server unreachable"
         };
     }
 }

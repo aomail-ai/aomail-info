@@ -62,10 +62,10 @@ const SideBar = () => {
                     {isConnected ? (
                             <>
                                 <h2 className="text-lg font-semibold mb-2">Account</h2>
-                                <button className="flex items-center mb-2">
+                                <a href="/profile" className="flex items-center mb-2">
                                     <User className="mr-2" />
                                     Profile
-                                </button>
+                                </a>
                                 <a href={"/post-article"} className="flex items-center mb-2">
                                     <PencilLine className="mr-2" />
                                     Post an article
