@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { postData } from "../../global/fetchData.ts";

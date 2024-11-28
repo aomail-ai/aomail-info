@@ -4,6 +4,7 @@ import ai.aomail.info.backend.models.AppUser;
 import ai.aomail.info.backend.repositories.AppUserRepository;
 import ai.aomail.info.backend.security.SessionFilter;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.logging.Logger;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
     private final Logger logger = Logger.getLogger(SecurityConfig.class.getName());
