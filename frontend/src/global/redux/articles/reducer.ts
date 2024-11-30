@@ -1,6 +1,6 @@
-import { SET_ARTICLES_DATA, SET_IDS, SET_RECENTLY_VIEWED_ARTICLES } from "./constants.ts";
-import { ArticlesAction, ArticlesState } from "./types.ts";
-
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ArticlesState } from "./types.ts";
+import { Article } from "../../types.ts";
 
 const initialState: ArticlesState = {
     ids: [],
@@ -8,24 +8,22 @@ const initialState: ArticlesState = {
     recentlyViewed: []
 };
 
-export const articlesReducer = (state = initialState, action: ArticlesAction): ArticlesState => {
-    switch (action.type) {
-        case SET_RECENTLY_VIEWED_ARTICLES:
-            return {
-                ...state,
-                recentlyViewed: action.payload.slice(0, 5)
-            };
-        case SET_IDS:
-            return {
-                ...state,
-                ids: action.payload
-            };
-        case SET_ARTICLES_DATA:
-            return {
-                ...state,
-                articles: action.payload
-            };
-        default:
-            return state;
+const articlesSlice = createSlice({
+    name: "articles",
+    initialState,
+    reducers: {
+        setRecentlyViewedArticles: (state, action: PayloadAction<Article[]>) => {
+            state.recentlyViewed = action.payload.slice(0, 5);
+        },
+        setIds: (state, action: PayloadAction<string[]>) => {
+            state.ids = action.payload;
+        },
+        setArticlesData: (state, action: PayloadAction<Article[]>) => {
+            state.articles = action.payload;
+        }
     }
-};
+});
+
+export const { setRecentlyViewedArticles, setIds, setArticlesData } = articlesSlice.actions;
+
+export default articlesSlice.reducer;

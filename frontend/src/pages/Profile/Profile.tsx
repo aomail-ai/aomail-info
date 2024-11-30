@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 import { getData, postData } from "../../global/fetchData.ts";
@@ -17,7 +17,8 @@ const BlogProfile = () => {
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationMessage, setNotificationMessage] = useState("");
     const [backgroundColor, setBackgroundColor] = useState("");
-    const timerId = useRef<number>(0);
+    const timerId = useRef<NodeJS.Timeout | null>(null);
+
 
     const displayPopup = (type: "success" | "error", title: string, message: string) => {
         if (type === "error") {
@@ -56,8 +57,8 @@ const BlogProfile = () => {
             console.log("fetch complete");
             setLoading(false);
         };
-        fetchProfileData();
-    }, []);
+        void fetchProfileData();
+    }, [profileData]);
 
     const handleUpdateProfile = async (field: "name" | "surname" | "username") => {
         const result = await postData("api/user/update", {

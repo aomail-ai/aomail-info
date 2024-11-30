@@ -18,7 +18,7 @@ const PostArticle = () => {
     const [notificationMessage, setNotificationMessage] = useState("");
     const [backgroundColor, setBackgroundColor] = useState("");
     const editorRef = useRef<Quill | null>(null);
-    const timerId = useRef<number>(0);
+    const timerId = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (!editorRef.current) {
@@ -39,28 +39,11 @@ const PostArticle = () => {
                     }
                 }
             });
-
-            if (editorRef.current instanceof Quill) {
-                // Remove pasted images
-                const Clipboard = Quill.import("modules/clipboard");
-
-                class CustomClipboard extends Clipboard {
-                    onPaste(e) {
-                        const clipboardData = e.clipboardData;
-                        const text = clipboardData.getData("text/plain");
-                        editorRef.current!.clipboard.dangerouslyPasteHTML(0, text);
-                        editorRef.current?.setContents([]);
-                        e.preventDefault();
-                    }
-                }
-
-                Quill.register("modules/clipboard", CustomClipboard, true);
-
-                editorRef.current.on("text-change", () => {
-                    setContent(editorRef.current!.root.innerHTML);
-                });
-            }
         }
+
+        editorRef.current.on("text-change", () => {
+            setContent(editorRef.current!.root.innerHTML);
+        });
     }, []);
 
 
@@ -91,6 +74,20 @@ const PostArticle = () => {
 
 
     const postArticle = async () => {
+        if (!title) {
+            displayPopup("error", "Failed to post article", "Title is required");
+            return;
+        } else if (!description) {
+            displayPopup("error", "Failed to post article", "Description is required");
+            return;
+        } else if (!content) {
+            displayPopup("error", "Failed to post article", "Content is required");
+            return;
+        } else if (!miniatureFile) {
+            displayPopup("error", "Failed to post article", "Miniature is required");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
@@ -100,6 +97,7 @@ const PostArticle = () => {
         if (miniatureFile) {
             formData.append("miniature", miniatureFile);
         }
+
 
         const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
             method: "POST",
@@ -111,8 +109,6 @@ const PostArticle = () => {
             return;
         }
 
-        const data = await response.json();
-
         if (response.ok) {
             displayPopup("success", "Success", "Article posted successfully!");
             setTitle("");
@@ -120,9 +116,14 @@ const PostArticle = () => {
             setContent("");
             setTags([]);
             setMiniatureFile(null);
+            editorRef.current!.root.innerHTML = "";
         } else {
-            console.log("Error posting article:", data.error ? data.error : "Unknown error");
-            displayPopup("error", "Failed to post article", data.error ? data.error : "Unknown error");
+            try {
+                const data = await response.json();
+                displayPopup("error", "Failed to post article", data.error ? data.error : "Unknown error");
+            } catch {
+                displayPopup("error", "Failed to post article", "Unknown error");
+            }
         }
     };
 

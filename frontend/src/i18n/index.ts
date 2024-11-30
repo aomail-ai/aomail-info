@@ -16,18 +16,25 @@ const initialLocale =
     navigator.language.split("-")[0] ||
     "en";
 
-i18n
-    .use(LngDetector)
-    .use(initReactI18next)
-    .init({
-        lng: initialLocale,
-        fallbackLng: "en",
-        resources,
-        interpolation: {
-            escapeValue: false
-        }
-    });
+const initializeI18n = async () => {
+    try {
+        await i18n
+            .use(LngDetector)
+            .use(initReactI18next)
+            .init({
+                lng: initialLocale,
+                fallbackLng: "en",
+                resources,
+                interpolation: {
+                    escapeValue: false
+                }
+            });
+    } catch (error) {
+        console.error("i18n initialization failed:", error);
+    }
+};
 
+void initializeI18n();
 
 // Set up a listener to persist the locale in localStorage
 i18n.on("languageChanged", (lng) => {

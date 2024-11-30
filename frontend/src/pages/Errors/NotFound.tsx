@@ -1,4 +1,3 @@
-// import { router } from "../../main.tsx";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

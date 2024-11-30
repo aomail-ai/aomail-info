@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 
-const NotificationTimer = ({
-                               showNotification,
-                               notificationTitle,
-                               notificationMessage,
-                               backgroundColor,
-                               onDismiss
-                           }) => {
+
+type NotificationTimerProps = {
+    showNotification: boolean;
+    notificationTitle: string
+    notificationMessage: string
+    backgroundColor?: string;
+    onDismiss: () => void;
+};
+
+const NotificationTimer: React.FC<NotificationTimerProps> = ({
+                                                                 showNotification,
+                                                                 notificationTitle,
+                                                                 notificationMessage,
+                                                                 backgroundColor,
+                                                                 onDismiss
+                                                             }) => {
     const [showNotificationInternal, setShowNotificationInternal] = useState(showNotification);
 
     useEffect(() => {
-        let timerId;
+        let timerId: NodeJS.Timeout;
         if (showNotification) {
             setShowNotificationInternal(true);
             timerId = setTimeout(() => {

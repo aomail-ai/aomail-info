@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { setIsConnected } from "../../global/redux/user/actions.ts";
 import { useDispatch } from "react-redux";
 import { saveUserState } from "../../global/localStorage.ts";
 import { useAppSelector } from "../../global/redux/hooks.ts";
+import { setIsConnected } from "../../global/redux/user/reducer.ts";
 
 const NotAuthorized = () => {
     const { t } = useTranslation();

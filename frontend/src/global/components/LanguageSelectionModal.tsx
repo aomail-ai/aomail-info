@@ -1,22 +1,31 @@
 import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
-import { setLanguage } from "../redux/user/actions.ts";
+import { setLanguage } from "../redux/user/reducer.ts";
 
 
-const LanguageModal = ({ isOpen, onClose }) => {
+type LanguageModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+};
+
+
+const LanguageModal: React.FC<LanguageModalProps> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
     const modalRef = useRef(null);
     const dispatch = useDispatch();
 
-    const selectLanguage = (language) => {
+    const selectLanguage = (language: string) => {
         localStorage.setItem("language", language);
-        i18n.changeLanguage(language);
-        dispatch(setLanguage(language));
-        onClose();
+        const changeLang = async () => {
+            await i18n.changeLanguage(language);
+            dispatch(setLanguage(language));
+            onClose();
+        };
+        void changeLang();
     };
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: { key: string; }) => {
         if (event.key === "Escape") {
             onClose();
         }
@@ -29,7 +38,7 @@ const LanguageModal = ({ isOpen, onClose }) => {
             document.removeEventListener("keydown", handleKeyDown);
         }
         return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen]);
+    });
 
     if (!isOpen) return null;
 

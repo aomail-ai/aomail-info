@@ -5,7 +5,7 @@ import { postData } from "../../global/fetchData.ts";
 import { useAppDispatch, useAppSelector } from "../../global/redux/hooks.ts";
 import { selectFetchIds } from "../../global/redux/articles/selectors.ts";
 import { loadUserState } from "../../global/localStorage.ts";
-import { setIds } from "../../global/redux/articles/actions.ts";
+import { setIds } from "../../global/redux/articles/reducer.ts";
 
 const Dashboard = () => {
     const [showNotification, setShowNotification] = useState(false);
@@ -25,12 +25,13 @@ const Dashboard = () => {
                 displayPopup("error", "Failed to fetch articles", result.error as string);
                 return;
             }
-            const fetchedIds = result.data.ids;
-            dispatch(setIds(fetchedIds));
+            console.log("Fetched IDs from API:", result.data.ids);
+            dispatch(setIds(result.data.ids));
+
             setLoading(false);
         };
-        fetchArticles();
-    }, []);
+        void fetchArticles();
+    }, [dispatch, userState?.id]);
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen text-xl text-gray-700">Loading...</div>;

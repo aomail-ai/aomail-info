@@ -51,7 +51,7 @@ dist
 dist-ssr
 *.local
 package-lock.json
-start_augustin_dev.sh
+build.sh
 build.sh
 
 # Editor directories and files

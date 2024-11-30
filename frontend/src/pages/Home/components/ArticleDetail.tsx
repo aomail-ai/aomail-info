@@ -32,7 +32,7 @@ export default function ArticleDetail() {
             }
         };
 
-        if (id) fetchData();
+        if (id) void fetchData();
     }, [id, articles, navigate]);
 
     if (!article) {

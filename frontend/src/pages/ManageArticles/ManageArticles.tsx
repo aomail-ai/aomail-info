@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { postData } from "../../global/fetchData.ts";
-import { setArticlesData, setIds } from "../../global/redux/articles/actions.ts";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 import { useAppDispatch, useAppSelector } from "../../global/redux/hooks.ts";
 import { loadUserState } from "../../global/localStorage.ts";
 import { selectFetchIds } from "../../global/redux/articles/selectors.ts";
 import { Article } from "../../global/types.ts";
+import { setArticlesData, setIds } from "../../global/redux/articles/reducer.ts";
 
 const ManageArticles = () => {
     // todo: add modals (as components) to update and delete articles + a preview modal + prompt to confirm deletion/edition
@@ -16,7 +16,7 @@ const ManageArticles = () => {
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationMessage, setNotificationMessage] = useState("");
     const [backgroundColor, setBackgroundColor] = useState("");
-    const timerId = useRef<number>(0);
+    const timerId = useRef<NodeJS.Timeout | null>(null);
     const userState = loadUserState();
     const fetchedIds = useAppSelector(selectFetchIds);
     const dispatch = useAppDispatch();
@@ -54,7 +54,7 @@ const ManageArticles = () => {
                 return;
             }
             const fetchedIds = result.data.ids;
-            dispatch(setIds(fetchedIds));
+            dispatch(setIds(result.data.ids));
 
             result = await postData("articles-data", { ids: fetchedIds.slice(0, 25) });
             if (!result.success) {
@@ -65,8 +65,8 @@ const ManageArticles = () => {
             dispatch(setArticlesData(result.data.articles));
             setLoading(false);
         };
-        fetchArticles();
-    }, []);
+        void fetchArticles();
+    }, [dispatch, userState?.id]);
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen text-xl text-gray-700">Loading...</div>;

@@ -1,7 +1,7 @@
 import { Article } from "../../../global/types.ts";
 import { useAppDispatch, useAppSelector } from "../../../global/redux/hooks.ts";
-import { setRecentlyViewedArticles } from "../../../global/redux/articles/actions.ts";
 import { useNavigate } from "react-router-dom";
+import { setRecentlyViewedArticles } from "../../../global/redux/articles/reducer.ts";
 
 interface ArticleCardProps {
     article: Article;

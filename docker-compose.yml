@@ -15,13 +15,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  backend_dev:
+  backend_prod:
     build:
       context: ./backend
-      target: development
-      dockerfile: Dockerfile
+      target: production
     ports:
-      - "${BACKEND_PORT}:8000"
+      - "${BACKEND_PORT}:8002"
     depends_on:
       db:
         condition: service_healthy
@@ -32,15 +31,14 @@ services:
       - DB_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
       - BACKEND_PORT=${BACKEND_PORT}
 
-  frontend_dev:
+  frontend_prod:
     build:
       context: ./frontend
-      target: development
-      dockerfile: Dockerfile
+      target: production
     ports:
       - "${FRONTEND_PORT}:3000"
     depends_on:
-      - backend_dev
+      - backend_prod
 
 volumes:
   postgres_data:

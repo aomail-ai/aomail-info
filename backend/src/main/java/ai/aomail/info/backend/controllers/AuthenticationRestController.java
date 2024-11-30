@@ -6,6 +6,7 @@ import ai.aomail.info.backend.repositories.SessionRepository;
 import ai.aomail.info.backend.security.LoginRequest;
 import ai.aomail.info.backend.security.SessionHelper;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -25,8 +23,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-public class LoginRestController {
-    private final Logger logger = LoggerFactory.getLogger(LoginRestController.class);
+public class AuthenticationRestController {
+    private final Logger logger = LoggerFactory.getLogger(AuthenticationRestController.class);
 
     @Autowired
     private AuthenticationManager manager;
@@ -100,5 +98,22 @@ public class LoginRestController {
                 "createdAt", appUser.getCreatedAt(),
                 "id", appUser.getId()
         ));
+    }
+
+    @GetMapping(value = "/logout", produces = "application/json")
+    public ResponseEntity<?> logout(HttpServletRequest httpRequest) {
+        logger.info("Logout request received");
+        try {
+            String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
+            Session session = findSessionRepository.findBySessionId(sessionId);
+            if (session != null) {
+                refreshTokenRepository.delete(session);
+                logger.info("Session deleted successfully");
+            }
+            logger.info("Logout successful");
+        } catch (Exception e) {
+            logger.error("Error while deleting session: {}", e.getMessage());
+        }
+        return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelectionModal from "./LanguageSelectionModal";
 import { AOMAIL_APP_URL } from "../constants.ts";
@@ -6,9 +6,9 @@ import SearchBar from "./SearchBar.tsx";
 
 
 const allowedLanguages = ["fr", "en"];
-const languages = {
+const languages: { [key: string]: string } = {
     fr: "/flag-france.png",
-    en: "flag-united-kingdom.png"
+    en: "/flag-united-kingdom.png"
 };
 
 const Header = () => {
@@ -19,15 +19,19 @@ const Header = () => {
     const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
     useEffect(() => {
-        const storedLanguage = localStorage.getItem("i18nextLng") || "en";
-        if (allowedLanguages.includes(storedLanguage)) {
-            setCurrentLanguage(storedLanguage);
-            i18n.changeLanguage(storedLanguage);
-        }
+        const changeLanguage = async () => {
+            const storedLanguage = localStorage.getItem("i18nextLng") || "en";
+            if (allowedLanguages.includes(storedLanguage)) {
+                setCurrentLanguage(storedLanguage);
+                await i18n.changeLanguage(storedLanguage);
+            }
+        };
+
+        void changeLanguage();
     }, [i18n]);
 
     useEffect(() => {
-        const handleLanguageChange = (lng) => {
+        const handleLanguageChange = (lng: string) => {
             setCurrentLanguage(lng);
         };
 

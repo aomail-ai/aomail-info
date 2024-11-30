@@ -1,31 +1,32 @@
-import { UserAction, UserState } from "./types.ts";
-import { SET_IS_CONNECTED, SET_LANGUAGE, SET_USER_STATE } from "./constants.ts";
+import { UserState } from "./types.ts";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState: UserState = {
     language: "en",
     isConnected: false,
+    username: "",
     name: "",
-    surname: ""
+    surname: "",
+    id: -1,
+    createdAt: ""
 };
 
-export const userReducer = (state = initialState, action: UserAction): UserState => {
-    switch (action.type) {
-        case SET_IS_CONNECTED:
-            return {
-                ...state,
-                isConnected: action.payload
-            };
-        case SET_USER_STATE:
-            return {
-                ...state,
-                ...action.payload
-            };
-        case SET_LANGUAGE:
-            return {
-                ...state,
-                language: action.payload
-            };
-        default:
-            return state;
+const articlesSlice = createSlice({
+    name: "user",
+    initialState,
+    reducers: {
+        setIsConnected: (state, action) => {
+            state.isConnected = action.payload;
+        },
+        setUserState: (state, action) => {
+            Object.assign(state, action.payload);
+        },
+        setLanguage: (state, action) => {
+            state.language = action.payload;
+        }
     }
-};
+});
+
+export const { setIsConnected, setUserState, setLanguage } = articlesSlice.actions;
+
+export default articlesSlice.reducer;

@@ -13,14 +13,20 @@ import {
     User
 } from "lucide-react";
 import { loadUserState } from "../localStorage.ts";
+import { getData } from "../fetchData.ts";
 
 const SideBar = () => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(localStorage.getItem("sidebar") === "true" || false);
     const userState = loadUserState();
     const isConnected = userState?.isConnected;
     const toggleVisibility = () => {
+        localStorage.setItem("sidebar", (!visible).toString());
         setVisible(!visible);
     };
+    const logout = async () => {
+        await getData("logout");
+    };
+
 
     return (
         <div className="relative h-full">
@@ -78,7 +84,7 @@ const SideBar = () => {
                                     <Gauge className="mr-2" />
                                     Dashboard
                                 </a>
-                                <button className="flex items-center mb-2">
+                                <button onClick={logout} className="flex items-center mb-2">
                                     <LogOut className="mr-2" />
                                     Logout
                                 </button>

@@ -64,7 +64,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // Frontend origin
+        configuration.setAllowedOrigins(java.util.List.of("http://localhost:3000")); // Frontend origin
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(java.util.List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);
@@ -82,6 +82,7 @@ public class SecurityConfig {
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/login")
+                        .ignoringRequestMatchers("/api/logout")
                         .ignoringRequestMatchers("/api/articles-ids")
                         .ignoringRequestMatchers("/api/articles-data")
                         .ignoringRequestMatchers("/api/user/**")

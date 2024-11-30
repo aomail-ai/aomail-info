@@ -15,9 +15,14 @@ import Dashboard from "./pages/Dashboard/Dashboard.tsx";
 import { loadUserState } from "./global/localStorage.ts";
 import ManageArticles from "./pages/ManageArticles/ManageArticles.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
+import React from "react";
 
 
-const RequireAuth = ({ Component }) => {
+type  RequireAuthProps = {
+    Component: React.FC;
+}
+
+const RequireAuth: React.FC<RequireAuthProps> = ({ Component }) => {
     const userState = loadUserState();
     return userState?.isConnected ? <Component /> : <Navigate to="/not-authorized" />;
 };
