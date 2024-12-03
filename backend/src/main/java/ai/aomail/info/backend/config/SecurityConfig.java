@@ -81,6 +81,7 @@ public class SecurityConfig {
         return http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/signup")
                         .ignoringRequestMatchers("/api/login")
                         .ignoringRequestMatchers("/api/logout")
                         .ignoringRequestMatchers("/api/articles-ids")
@@ -88,6 +89,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/user/**")
                 )
                 .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers("/api/signup").hasAuthority("ADMIN")
                         .requestMatchers("/api/articles-ids").permitAll()
                         .requestMatchers("/api/articles-data").permitAll()
                         .requestMatchers("/api/login").permitAll()

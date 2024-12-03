@@ -2,19 +2,21 @@ package ai.aomail.info.backend.controllers;
 
 import ai.aomail.info.backend.models.AppUser;
 import ai.aomail.info.backend.models.Session;
+import ai.aomail.info.backend.repositories.AppUserRepository;
 import ai.aomail.info.backend.repositories.SessionRepository;
 import ai.aomail.info.backend.security.LoginRequest;
 import ai.aomail.info.backend.security.SessionHelper;
+import ai.aomail.info.backend.security.SignupRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -26,18 +28,17 @@ import java.util.Map;
 public class AuthenticationRestController {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationRestController.class);
 
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
+    private final AppUserService appUserService;
+    private final AppUserRepository appUserRepository;
+    private final SessionRepository sessionRepository;
 
-    @Autowired
-    @Qualifier("appUserService")
-    private AppUserService appUserService;
-
-    @Autowired
-    private SessionRepository refreshTokenRepository;
-
-    @Autowired
-    private SessionRepository findSessionRepository;
+    public AuthenticationRestController(AuthenticationManager manager, AppUserService appUserService, AppUserRepository appUserRepository, SessionRepository sessionRepository) {
+        this.manager = manager;
+        this.appUserService = appUserService;
+        this.appUserRepository = appUserRepository;
+        this.sessionRepository = sessionRepository;
+    }
 
     @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse httpResponse) {
@@ -59,7 +60,7 @@ public class AuthenticationRestController {
         String sessionId;
         do {
             sessionId = SessionHelper.generateSessionID();
-        } while (findSessionRepository.findBySessionId(sessionId) != null); // Check if sessionId already exists
+        } while (sessionRepository.findBySessionId(sessionId) != null); // Check if sessionId already exists
 
         // Create the session cookie
         Cookie sessionCookie = new Cookie("session", sessionId);
@@ -73,14 +74,14 @@ public class AuthenticationRestController {
 
         // Save session in the database
         try {
-            Session session = findSessionRepository.findByUser(appUser);
+            Session session = sessionRepository.findByUser(appUser);
             if (session != null) {
                 session.setSessionId(sessionId);
                 session.setExpiryDate(expiryDate);
-                refreshTokenRepository.save(session);
+                sessionRepository.save(session);
             } else {
                 Session newSession = new Session(sessionId, appUser, expiryDate);
-                refreshTokenRepository.save(newSession);
+                sessionRepository.save(newSession);
             }
         } catch (Exception e) {
             logger.error("Error while updating session: {}", e.getMessage());
@@ -105,9 +106,9 @@ public class AuthenticationRestController {
         logger.info("Logout request received");
         try {
             String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
-            Session session = findSessionRepository.findBySessionId(sessionId);
+            Session session = sessionRepository.findBySessionId(sessionId);
             if (session != null) {
-                refreshTokenRepository.delete(session);
+                sessionRepository.delete(session);
                 logger.info("Session deleted successfully");
             }
             logger.info("Logout successful");
@@ -115,5 +116,36 @@ public class AuthenticationRestController {
             logger.error("Error while deleting session: {}", e.getMessage());
         }
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
+    }
+
+    @PostMapping(value = "/signup", produces = "application/json")
+    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
+        logger.info("Signup request received for user: {}", request.getUsername());
+
+        String name = request.getName();
+        String password = request.getPassword();
+        String surname = request.getSurname();
+        String username = request.getUsername();
+
+        if (name == null || password == null || surname == null || username == null) {
+            return ResponseEntity.status(400).body(Map.of("message", "All fields are required"));
+        }
+
+        try {
+            appUserService.findByUsername(username);
+            return ResponseEntity.status(400).body(Map.of("message", "Username already exists"));
+        } catch (UsernameNotFoundException e) {
+            logger.info("Username is available");
+        }
+
+        AppUser appUser = new AppUser();
+        appUser.setName(name);
+        appUser.setPassword(password);
+        appUser.setSurname(surname);
+        appUser.setUsername(username);
+        appUserRepository.save(appUser);
+
+        logger.info("User {} created successfully", username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("msg", "User created successfully"));
     }
 }
