@@ -45,7 +45,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-miniatureUrls/
+miniatureImages/
 node_modules
 dist
 dist-ssr

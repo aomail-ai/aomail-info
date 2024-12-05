@@ -5,6 +5,7 @@ import { selectAllArticles } from "../../../global/redux/articles/selectors";
 import DOMPurify from "dompurify";
 import { postData } from "../../../global/fetchData";
 import { Article } from "../../../global/types";
+import { API_BASE_URL } from "../../../global/constants.ts";
 
 export default function ArticleDetail() {
     const { id } = useParams();
@@ -54,7 +55,7 @@ export default function ArticleDetail() {
         <div className="py-12">
             <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <img
-                    src={article.miniatureUrl}
+                    src={`${API_BASE_URL}miniature-data/${article.miniatureFileName}`}
                     alt={article.title}
                     className="w-full h-[400px] object-cover rounded-lg shadow-lg mb-8"
                 />

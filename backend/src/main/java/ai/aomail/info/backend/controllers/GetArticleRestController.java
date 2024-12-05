@@ -42,7 +42,7 @@ public class GetArticleRestController {
             String order = getArticleIdsRequest.getOrder();
             List<Integer> ids;
 
-            if (userId != -1) {
+            if (userId != 0) {
                 ids = articleRepository.findAll(
                         ArticleSpecifications.filterArticlesByUserId(userId, sort, order)
                 ).stream().map(Article::getId).collect(Collectors.toList());

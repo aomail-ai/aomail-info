@@ -22,7 +22,7 @@ export interface Article {
     title: string;
     description: string;
     content: string;
-    miniatureUrl: string;
+    miniatureFileName: string;
     authorName: string;
     createdAt: string;
     updatedAt: string;

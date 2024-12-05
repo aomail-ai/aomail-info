@@ -124,7 +124,7 @@ public class ArticleRestController {
         String originalFilename = miniatureFile.getOriginalFilename();
         String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
 
-        Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureUrls/" + uniqueFilename);
+        Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureImages/" + uniqueFilename);
         Files.createDirectories(miniaturePath.getParent());
         Files.write(miniaturePath, miniatureFile.getBytes());
 

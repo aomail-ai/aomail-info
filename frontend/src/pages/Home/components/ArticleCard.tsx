@@ -2,6 +2,7 @@ import { Article } from "../../../global/types.ts";
 import { useAppDispatch, useAppSelector } from "../../../global/redux/hooks.ts";
 import { useNavigate } from "react-router-dom";
 import { setRecentlyViewedArticles } from "../../../global/redux/articles/reducer.ts";
+import { API_BASE_URL } from "../../../global/constants.ts";
 
 interface ArticleCardProps {
     article: Article;
@@ -19,7 +20,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
             <img
-                src={article.miniatureUrl}
+                src={`${API_BASE_URL}miniature-data/${article.miniatureFileName}`}
                 alt={article.title}
                 className="w-full h-48 object-cover"
             />

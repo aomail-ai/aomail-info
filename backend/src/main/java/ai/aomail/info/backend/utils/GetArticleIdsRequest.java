@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class GetArticleIdsRequest {
@@ -21,4 +22,12 @@ public class GetArticleIdsRequest {
     private boolean advanced;
     private String sort;
     private String order;
+
+    public String getSort() {
+        return Objects.requireNonNullElse(sort, "updatedAt");
+    }
+
+    public String getOrder() {
+        return Objects.requireNonNullElse(order, "desc");
+    }
 }

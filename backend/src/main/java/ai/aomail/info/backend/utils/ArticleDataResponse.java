@@ -16,7 +16,7 @@ public class ArticleDataResponse {
     private final String title;
     private final String description;
     private final String content;
-    private final String miniatureUrl;
+    private final String miniatureFileName;
     private final String authorName;
     private final Date createdAt;
     private final Date updatedAt;
@@ -29,7 +29,7 @@ public class ArticleDataResponse {
             String title,
             String description,
             String content,
-            String miniatureUrl,
+            String miniatureFileName,
             String authorName,
             Date createdAt,
             Date updatedAt,
@@ -40,7 +40,7 @@ public class ArticleDataResponse {
         this.title = title;
         this.description = description;
         this.content = content;
-        this.miniatureUrl = miniatureUrl;
+        this.miniatureFileName = miniatureFileName;
         this.authorName = authorName;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
