@@ -25,9 +25,7 @@ const Dashboard = () => {
                 displayPopup("error", "Failed to fetch articles", result.error as string);
                 return;
             }
-            console.log("Fetched IDs from API:", result.data.ids);
             dispatch(setIds(result.data.ids));
-
             setLoading(false);
         };
         void fetchArticles();

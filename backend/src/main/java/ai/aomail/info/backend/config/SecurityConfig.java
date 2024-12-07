@@ -76,7 +76,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.ignoringRequestMatchers("/api/miniature-data/**").ignoringRequestMatchers("/api/signup").ignoringRequestMatchers("/api/login").ignoringRequestMatchers("/api/logout").ignoringRequestMatchers("/api/articles-ids").ignoringRequestMatchers("/api/articles-data").ignoringRequestMatchers("/api/user/**")).authorizeHttpRequests(authorization -> authorization.requestMatchers("/api/signup").hasAuthority("ADMIN").requestMatchers("/api/logout").hasAuthority("USER").requestMatchers("/api/miniature-data/**").permitAll().requestMatchers("/api/articles-ids").permitAll().requestMatchers("/api/articles-data").permitAll().requestMatchers("/api/login").permitAll().requestMatchers("/api/user/**").hasAuthority("USER").requestMatchers("/api/admin/**").hasAuthority("ADMIN").anyRequest().authenticated()).addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class).build();
+        return http
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/signup")
+                        .ignoringRequestMatchers("/api/login")
+                        .ignoringRequestMatchers("/api/miniature-data/**")
+                        .ignoringRequestMatchers("/api/articles-ids")
+                        .ignoringRequestMatchers("/api/articles-data")
+                        .ignoringRequestMatchers("/api/user/**"))
+                .authorizeHttpRequests(authorization -> authorization
+                        .requestMatchers("/api/signup").hasAuthority("ADMIN")
+                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/miniature-data/**").permitAll()
+                        .requestMatchers("/api/articles-ids").permitAll()
+                        .requestMatchers("/api/articles-data").permitAll()
+                        .requestMatchers("/api/user/**").hasAuthority("USER")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
+                .addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
 

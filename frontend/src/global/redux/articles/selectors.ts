@@ -14,3 +14,8 @@ export const selectFetchIds = createSelector(
     selectArticlesState,
     (articlesState: ArticlesState) => articlesState.ids
 );
+
+export const selectFilters = createSelector(
+    selectArticlesState,
+    (articlesState: ArticlesState) => articlesState.filters
+);

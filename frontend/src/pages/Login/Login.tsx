@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { postData } from "../../global/fetchData.ts";
 import { useNavigate } from "react-router-dom";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
@@ -7,6 +6,7 @@ import { useDispatch } from "react-redux";
 import i18n from "i18next";
 import { saveUserState } from "../../global/localStorage.ts";
 import { setUserState } from "../../global/redux/user/reducer.ts";
+import { API_BASE_URL } from "../../global/constants.ts";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -29,23 +29,51 @@ const Login = () => {
             displayPopup("error", "Invalid password", "Password is required");
             return;
         }
-        const result = await postData("login", { username, password });
-        if (!result.success) {
-            displayPopup("error", "Invalid credentials", result.error as string);
-        } else {
-            dispatch(
-                setUserState({
-                    ...result.data,
-                    language: i18n.language,
-                    isConnected: true
-                })
+
+        try {
+
+            const response = await fetch(`${API_BASE_URL}login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password })
+                }
             );
-            saveUserState({
-                ...result.data,
-                language: i18n.language,
-                isConnected: true
-            });
-            navigate("/dashboard");
+
+            if (!response) {
+                displayPopup("error", "No server response", "No server response");
+                return;
+            }
+
+            let result;
+            try {
+                result = await response.json();
+                if (!response.ok) {
+                    displayPopup("error", "Failed to login", "Invalid credentials");
+                    return;
+                } else {
+                    dispatch(
+                        setUserState({
+                            ...result.data,
+                            language: i18n.language,
+                            isConnected: true
+                        })
+                    );
+                    saveUserState({
+                        ...result.data,
+                        language: i18n.language,
+                        isConnected: true
+                    });
+                    navigate("/dashboard");
+                }
+            } catch {
+                displayPopup("error", "Invalid JSON response from server", "Invalid JSON response from server");
+                return;
+            }
+        } catch {
+            displayPopup("error", "Network error", "Network error or server unreachable");
+            return;
         }
     };
 

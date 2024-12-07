@@ -30,6 +30,23 @@ export interface Article {
     Tags: Tag[];
 }
 
+export interface Filters {
+    userId?: number;
+    search?: string;
+    title?: string;
+    description?: string;
+    content?: string;
+    authorName?: string;
+    tags?: string[];
+    startDate?: Date;
+    endDate?: Date;
+    minReactions?: number;
+    maxReactions?: number;
+    advanced?: boolean;
+    sort?: string;
+    order?: string;
+}
+
 export interface RootState {
     articles: ArticlesState;
     user: UserState;

@@ -4,7 +4,6 @@ import ArticleDetail from "./pages/Home/components/ArticleDetail.tsx";
 import NotFound from "./pages/Errors/NotFound.tsx";
 import TermsOfService from "./pages/TermsOfService/TermsOfService.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy.tsx";
-import Fox from "./pages/Fox";
 import Footer from "./global/components/Footer.tsx";
 import Header from "./global/components/Header.tsx";
 import NotAuthorized from "./pages/Errors/NotAuthorized.tsx";
@@ -16,6 +15,7 @@ import { loadUserState } from "./global/localStorage.ts";
 import ManageArticles from "./pages/ManageArticles/ManageArticles.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
 import React from "react";
+import Signup from "./pages/Signup/Signup.tsx";
 
 
 type  RequireAuthProps = {
@@ -38,6 +38,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/signup" element={<Signup />} />
                             <Route path="/dashboard" element={<RequireAuth Component={Dashboard} />} />
                             <Route path="/post-article" element={<RequireAuth Component={PostArticle} />} />
                             <Route path="/manage-articles" element={<RequireAuth Component={ManageArticles} />} />
@@ -45,7 +46,6 @@ function App() {
                             <Route path="/article/:id" element={<ArticleDetail />} />
                             <Route path="/terms-of-service" element={<TermsOfService />} />
                             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                            <Route path="/fox" element={<Fox />} />
                             <Route path="/not-authorized" element={<NotAuthorized />} />
                             <Route path="*" element={<NotFound />} />
                         </Routes>

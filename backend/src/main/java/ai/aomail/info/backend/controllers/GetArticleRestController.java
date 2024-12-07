@@ -90,7 +90,7 @@ public class GetArticleRestController {
         } catch (Exception e) {
             logger.error("Error processing article IDs request", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error processing request"));
+                    .body(Map.of("error", "Internal server error"));
         }
     }
 
@@ -138,7 +138,7 @@ public class GetArticleRestController {
         } catch (Exception e) {
             logger.error("Error processing article data request", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error processing request"));
+                    .body(Map.of("error", "Internal server error"));
         }
     }
 }

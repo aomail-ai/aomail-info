@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ArticlesState } from "./types.ts";
-import { Article } from "../../types.ts";
+import { Article, Filters } from "../../types.ts";
 
 const initialState: ArticlesState = {
     ids: [],
     articles: [],
-    recentlyViewed: []
+    recentlyViewed: [],
+    filters: {}
 };
 
 const articlesSlice = createSlice({
@@ -20,10 +21,13 @@ const articlesSlice = createSlice({
         },
         setArticlesData: (state, action: PayloadAction<Article[]>) => {
             state.articles = action.payload;
+        },
+        setFilters: (state, action: PayloadAction<Filters>) => {
+            state.filters = action.payload;
         }
     }
 });
 
-export const { setRecentlyViewedArticles, setIds, setArticlesData } = articlesSlice.actions;
+export const { setRecentlyViewedArticles, setIds, setArticlesData, setFilters } = articlesSlice.actions;
 
 export default articlesSlice.reducer;

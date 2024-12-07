@@ -42,7 +42,7 @@ export async function getData(path: string, headers?: Record<string, string>): P
                 error: data?.error || "Unknown error occurred"
             };
         }
-    } catch (fetchError) {
+    } catch {
         return {
             success: false,
             error: "Network error or server unreachable"
@@ -68,22 +68,29 @@ export async function postData(path: string, body: Record<string, any>): Promise
         };
     }
 
-    const data = await response.json();
+    try {
+        const data = await response.json();
 
-    if (response.ok) {
-        return {
-            success: true,
-            data: data
-        };
-    } else {
+        if (response.ok) {
+            return {
+                success: true,
+                data: data
+            };
+        } else {
+            return {
+                success: false,
+                error: data.error ? data.error : "Unknown error"
+            };
+        }
+    } catch {
         return {
             success: false,
-            error: data.error ? data.error : "Unknown error"
+            error: "Invalid JSON response from server"
         };
     }
 }
 
-export async function deleteData(path: string, body?: never): Promise<FetchDataResult> {
+export async function deleteData(path: string, body?: Record<string, any>): Promise<FetchDataResult> {
     const requestOptions: RequestInit = {
         method: "DELETE",
         headers: {
@@ -103,23 +110,29 @@ export async function deleteData(path: string, body?: never): Promise<FetchDataR
             error: "No server response"
         };
     }
+    try {
+        const data = await response.json();
 
-    const data = await response.json();
-
-    if (response.ok) {
-        return {
-            success: true,
-            data: data
-        };
-    } else {
+        if (response.ok) {
+            return {
+                success: true,
+                data: data
+            };
+        } else {
+            return {
+                success: false,
+                error: data.error ? data.error : "Unknown error"
+            };
+        }
+    } catch {
         return {
             success: false,
-            error: data.error ? data.error : "Unknown error"
+            error: "Invalid JSON response from server"
         };
     }
 }
 
-export async function putData(path: string, body: Record<string, never>): Promise<FetchDataResult> {
+export async function putData(path: string, body: Record<string, string>): Promise<FetchDataResult> {
     const requestOptions = {
         method: "PUT",
         headers: {
@@ -137,17 +150,24 @@ export async function putData(path: string, body: Record<string, never>): Promis
         };
     }
 
-    const data = await response.json();
+    try {
+        const data = await response.json();
 
-    if (response.ok) {
-        return {
-            success: true,
-            data: data
-        };
-    } else {
+        if (response.ok) {
+            return {
+                success: true,
+                data: data
+            };
+        } else {
+            return {
+                success: false,
+                error: data.error ? data.error : "Unknown error"
+            };
+        }
+    } catch {
         return {
             success: false,
-            error: data.error ? data.error : "Unknown error"
+            error: "Invalid JSON response from server"
         };
     }
 }

@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
-import { getData, postData } from "../../global/fetchData.ts";
+import { deleteData, getData, putData } from "../../global/fetchData.ts";
 import { loadUserState } from "../../global/localStorage.ts";
+import AccountDeletionConfirmationModal from "./components/AccountDeletionConfirmationModal.tsx";
 
-const BlogProfile = () => {
-    // todo: add a button to delete account, add name, surname update modals. Use modal components
+const Profile = () => {
     const [profileData, setProfileData] = useState(loadUserState());
-    const [editingField, setEditingField] = useState<"name" | "surname" | "username" | "password" | null>(null);
-    const [inputValue, setInputValue] = useState("");
-    const [currentPassword, setCurrentPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [surname, setSurname] = useState("");
+    const [name, setName] = useState("");
     const [newPassword, setNewPassword] = useState("");
+    const [currentPassword, setCurrentPassword] = useState("");
     const [loading, setLoading] = useState(true);
-
+    const [isAccountDeletionConfirmationModalOpen, setIsAccountDeletionConfirmationModalOpen] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationMessage, setNotificationMessage] = useState("");
@@ -44,52 +45,60 @@ const BlogProfile = () => {
             setShowNotification(false);
         }, 4000);
     };
+    const closeAccountDeletionConfirmationModal = () => setIsAccountDeletionConfirmationModalOpen(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
-            const result = await getData("api/profile");
-            console.log("fetching profile data");
+            const result = await getData("user/profile");
             if (!result.success) {
                 displayPopup("error", "Failed to fetch profile", result.error as string);
             } else {
                 setProfileData({ ...profileData, ...result.data });
             }
-            console.log("fetch complete");
             setLoading(false);
         };
         void fetchProfileData();
-    }, [profileData]);
+    }, []);
 
-    const handleUpdateProfile = async (field: "name" | "surname" | "username") => {
-        const result = await postData("api/user/update", {
-            id: profileData.id,
-            field,
-            value: inputValue,
+    const handleUpdateProfile = async () => {
+        if (!currentPassword) {
+            displayPopup("error", "Update Failed", "Please enter your current password.");
+            return;
+        }
+        const result = await putData("user/profile", {
+            username,
+            name,
+            surname,
+            newPassword,
             currentPassword
         });
         if (!result.success) {
             displayPopup("error", "Update Failed", result.error as string);
             return;
         }
-        setProfileData((prev) => ({ ...prev, [field]: inputValue }));
-        displayPopup("success", "Update Successful", `${field} has been updated successfully.`);
-        setEditingField(null);
+        displayPopup("success", "Profile has been updated successfully", "You have been logged out from all devices. Redirecting to the login page.");
+        setTimeout(() => {
+            window.location.href = "/login";
+        }, 5000);
     };
 
-    const handleChangePassword = async () => {
-        const result = await postData("api/user/change-password", {
-            id: profileData.id,
-            currentPassword,
-            newPassword
-        });
-        if (!result.success) {
-            displayPopup("error", "Password Change Failed", result.error as string);
+    const handleAccountDeletion = async () => {
+        setIsAccountDeletionConfirmationModalOpen(false);
+        if (!currentPassword) {
+            displayPopup("error", "Account Deletion Failed", "Please enter your current password.");
             return;
         }
-        displayPopup("success", "Password Changed", "Your password has been updated successfully.");
-        setEditingField(null);
-        setCurrentPassword("");
-        setNewPassword("");
+        const result = await deleteData("user/profile", {
+            currentPassword
+        });
+        if (!result.success) {
+            displayPopup("error", "Account Deletion Failed", result.error as string);
+            return;
+        }
+        displayPopup("success", "Account Deleted Successfully", "You will be redirected to the homepage.");
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 3000);
     };
 
     if (loading) {
@@ -105,104 +114,97 @@ const BlogProfile = () => {
                 backgroundColor={backgroundColor}
                 onDismiss={() => setShowNotification(false)}
             />
+            <AccountDeletionConfirmationModal
+                isOpen={isAccountDeletionConfirmationModalOpen}
+                onClose={closeAccountDeletionConfirmationModal}
+                onConfirm={handleAccountDeletion}
+            />
             <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-8">
                 <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
                     <h1 className="text-2xl font-semibold text-gray-800 mb-4">Your Profile</h1>
                     <p className="text-gray-500">Manage your account information and settings.</p>
+                    <p className="text-gray-500">Account created
+                        on: {new Date(profileData.createdAt).toLocaleDateString()}</p>
                     <div className="mt-6 space-y-6">
                         {/* Display Profile Fields */}
                         <div className="flex justify-between items-center">
                             <p className="text-gray-700">Username</p>
-                            {editingField === "username" ? (
-                                <div className="flex space-x-4">
-                                    <input
-                                        type="text"
-                                        className="border rounded px-4 py-2 text-sm w-full"
-                                        value={inputValue}
-                                        onChange={(e) => setInputValue(e.target.value)}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Current Password"
-                                        className="border rounded px-4 py-2 text-sm w-full"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                    />
-                                    <button
-                                        onClick={() => handleUpdateProfile("username")}
-                                        className="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-500"
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        onClick={() => setEditingField(null)}
-                                        className="px-4 py-2 text-sm text-white bg-gray-400 rounded hover:bg-gray-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center">
-                                    <p className="text-gray-600">{profileData.username}</p>
-                                    <button
-                                        onClick={() => {
-                                            setEditingField("username");
-                                            setInputValue(profileData.username);
-                                        }}
-                                        className="ml-4 px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-100"
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
-                            )}
+                            <div className="flex space-x-4">
+                                <input
+                                    type="text"
+                                    className="border rounded px-4 py-2 text-sm w-full"
+                                    placeholder="Username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                />
+                            </div>
                         </div>
-                        {/* Repeat similar structure for Name and Surname */}
-                        {/* Password Change */}
                         <div className="flex justify-between items-center">
-                            <p className="text-gray-700">Password</p>
-                            {editingField === "password" ? (
-                                <div className="flex space-x-4">
-                                    <input
-                                        type="password"
-                                        placeholder="Current Password"
-                                        className="border rounded px-4 py-2 text-sm w-full"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="New Password"
-                                        className="border rounded px-4 py-2 text-sm w-full"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                    />
-                                    <button
-                                        onClick={handleChangePassword}
-                                        className="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-500"
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        onClick={() => setEditingField(null)}
-                                        className="px-4 py-2 text-sm text-white bg-gray-400 rounded hover:bg-gray-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => setEditingField("password")}
-                                    className="ml-4 px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-100"
-                                >
-                                    Change Password
-                                </button>
-                            )}
+                            <p className="text-gray-700">Name</p>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="text"
+                                    className="border rounded px-4 py-2 text-sm w-full"
+                                    placeholder="Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <p className="text-gray-700">Surname</p>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="text"
+                                    className="border rounded px-4 py-2 text-sm w-full"
+                                    placeholder="Surname"
+                                    value={surname}
+                                    onChange={(e) => setSurname(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <p className="text-gray-700">New Password</p>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="text"
+                                    className="border rounded px-4 py-2 text-sm w-full"
+                                    placeholder="New Password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <p className="text-gray-700">Current Password</p>
+                            <div className="flex space-x-4">
+                                <input
+                                    type="text"
+                                    className="border rounded px-4 py-2 text-sm w-full"
+                                    placeholder="Current Password"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
+                    <button
+                        onClick={handleUpdateProfile}
+                        className="ml-4 px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-100"
+                    >
+                        Update Profile
+                    </button>
+
+                    <button
+                        onClick={() => setIsAccountDeletionConfirmationModalOpen(true)}
+                        className="ml-4 px-3 py-1 text-sm text-red-600 border border-red-600 rounded  hover:bg-red-100"
+                    >
+                        Delete Account
+                    </button>
                 </div>
             </div>
         </>
     );
 };
 
-export default BlogProfile;
+export default Profile;

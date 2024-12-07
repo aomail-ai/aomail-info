@@ -5,13 +5,12 @@ import { AOMAIL_APP_URL } from "../constants.ts";
 import SearchBar from "./SearchBar.tsx";
 
 
-const allowedLanguages = ["fr", "en"];
-const languages: { [key: string]: string } = {
-    fr: "/flag-france.png",
-    en: "/flag-united-kingdom.png"
-};
-
 const Header = () => {
+    const allowedLanguages = ["fr", "en"];
+    const languages: { [key: string]: string } = {
+        fr: "/flag-france.png",
+        en: "/flag-united-kingdom.png"
+    };
     const { t, i18n } = useTranslation();
     const [isMobile, setIsMobile] = useState(false);
     const [isLanguageSelectionModalOpen, setLanguageSelectionModalOpen] = useState(false);

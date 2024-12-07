@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { postData } from "../../global/fetchData.ts";
-import { useAppDispatch } from "../../global/redux/hooks.ts";
+import { useAppDispatch, useAppSelector } from "../../global/redux/hooks.ts";
 import Articles from "./components/Articles.tsx";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { setArticlesData, setIds } from "../../global/redux/articles/reducer.ts";
+import { selectFilters } from "../../global/redux/articles/selectors.ts";
 
 export default function Home() {
     const [loading, setLoading] = useState(true);
@@ -12,6 +13,7 @@ export default function Home() {
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationMessage, setNotificationMessage] = useState("");
     const [backgroundColor, setBackgroundColor] = useState("");
+    const filters = useAppSelector(selectFilters);
     const timerId = useRef<NodeJS.Timeout | null>(null);
     const dispatch = useAppDispatch();
 
@@ -42,7 +44,12 @@ export default function Home() {
 
     useEffect(() => {
         const fetchArticles = async () => {
-            let result = await postData("articles-ids", {});
+            let result;
+            if (filters.advanced) {
+                result = await postData("articles-ids", filters);
+            } else {
+                result = await postData("articles-ids", {});
+            }
             if (!result.success) {
                 displayPopup("error", "Failed to fetch articles", result.error as string);
                 return;

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -28,12 +29,14 @@ import java.util.Map;
 public class AuthenticationRestController {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationRestController.class);
 
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager manager;
     private final AppUserService appUserService;
     private final AppUserRepository appUserRepository;
     private final SessionRepository sessionRepository;
 
-    public AuthenticationRestController(AuthenticationManager manager, AppUserService appUserService, AppUserRepository appUserRepository, SessionRepository sessionRepository) {
+    public AuthenticationRestController(PasswordEncoder passwordEncoder, AuthenticationManager manager, AppUserService appUserService, AppUserRepository appUserRepository, SessionRepository sessionRepository) {
+        this.passwordEncoder = passwordEncoder;
         this.manager = manager;
         this.appUserService = appUserService;
         this.appUserRepository = appUserRepository;
@@ -51,7 +54,7 @@ public class AuthenticationRestController {
             logger.debug("Authentication succeeded");
         } catch (Exception e) {
             logger.debug("Authentication failed: {}", e.getMessage());
-            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
         AppUser appUser = appUserService.findByUsername(request.getUsername());
@@ -85,6 +88,7 @@ public class AuthenticationRestController {
             }
         } catch (Exception e) {
             logger.error("Error while updating session: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error"));
         }
 
         // Add session cookie to the response
@@ -101,7 +105,7 @@ public class AuthenticationRestController {
         ));
     }
 
-    @GetMapping(value = "/logout", produces = "application/json")
+    @GetMapping(value = "/user/logout", produces = "application/json")
     public ResponseEntity<?> logout(HttpServletRequest httpRequest) {
         logger.info("Logout request received");
         try {
@@ -114,13 +118,14 @@ public class AuthenticationRestController {
             logger.info("Logout successful");
         } catch (Exception e) {
             logger.error("Error while deleting session: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error"));
         }
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 
     @PostMapping(value = "/signup", produces = "application/json")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        logger.info("Signup request received for user: {}", request.getUsername());
+        logger.info("Signup request received");
 
         String name = request.getName();
         String password = request.getPassword();
@@ -128,19 +133,19 @@ public class AuthenticationRestController {
         String username = request.getUsername();
 
         if (name == null || password == null || surname == null || username == null) {
-            return ResponseEntity.status(400).body(Map.of("message", "All fields are required"));
+            return ResponseEntity.status(400).body(Map.of("error", "All fields are required"));
         }
 
         try {
             appUserService.findByUsername(username);
-            return ResponseEntity.status(400).body(Map.of("message", "Username already exists"));
+            return ResponseEntity.status(400).body(Map.of("error", "Username already exists"));
         } catch (UsernameNotFoundException e) {
             logger.info("Username is available");
         }
 
         AppUser appUser = new AppUser();
         appUser.setName(name);
-        appUser.setPassword(password);
+        appUser.setPassword(passwordEncoder.encode(password));
         appUser.setSurname(surname);
         appUser.setUsername(username);
         appUserRepository.save(appUser);
