@@ -5,8 +5,10 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Development mode
+# Production mode
 FROM base AS production
-EXPOSE 3000
 CMD ["npm", "run", "build"]
-#CMD ["npm", "preview", "--port", "3000"]
+
+COPY --from=base /app/dist /app/dist
+EXPOSE 3000
+CMD ["npm", "run", "preview"]

@@ -7,5 +7,5 @@ RUN gradle bootJar
 # Development mode
 FROM base AS production
 COPY --from=base /app/build/libs/*.jar app.jar
-EXPOSE 8002
+EXPOSE 8083
 CMD ["java", "-jar", "app.jar"]

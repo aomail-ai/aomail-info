@@ -20,7 +20,7 @@ services:
       context: ./backend
       target: production
     ports:
-      - "${BACKEND_PORT}:8002"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
       db:
         condition: service_healthy
