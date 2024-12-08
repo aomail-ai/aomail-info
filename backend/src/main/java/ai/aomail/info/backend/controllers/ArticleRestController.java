@@ -7,6 +7,7 @@ import ai.aomail.info.backend.repositories.ArticleRepository;
 import ai.aomail.info.backend.repositories.SessionRepository;
 import ai.aomail.info.backend.repositories.TagRepository;
 import ai.aomail.info.backend.security.SessionHelper;
+import ai.aomail.info.backend.utils.ArticleRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -114,6 +116,42 @@ public class ArticleRestController {
 
         logger.debug("Article updated successfully with ID {}", id);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("msg", "Article updated successfully"));
+    }
+
+
+    @Transactional
+    @DeleteMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> deleteArticles(@RequestBody ArticleRequest articleRequest, HttpServletRequest httpRequest) {
+        logger.debug("DELETE: Deleting articles ids");
+
+        List<Integer> ids = articleRequest.getIds();
+        if (ids == null || ids.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Article IDs are required"));
+        }
+
+        List<Article> articles = articleRepository.findArticleByIdIn(ids);
+        Session session = validateSession(httpRequest);
+        if (session == null) return unauthorizedResponse();
+
+        for (Article article : articles) {
+            if (article == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Article not found"));
+            } else if (!article.getUser().equals(session.getUser())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not authorized to delete this article"));
+            }
+            articleRepository.delete(article);
+            String miniatureFilename = article.getMiniatureFileName();
+            Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureImages/" + miniatureFilename);
+            try {
+                Files.delete(miniaturePath);
+                logger.debug("Miniature file deleted successfully");
+            } catch (IOException e) {
+                logger.error("Error deleting miniature file: {}", e.getMessage());
+            }
+        }
+
+        logger.debug("Articles deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("msg", "Articles deleted successfully"));
     }
 
     private String uploadMiniature(MultipartFile miniatureFile) throws IOException {

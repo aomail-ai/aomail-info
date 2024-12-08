@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { postData } from "../../global/fetchData.ts";
+import { deleteData, postData } from "../../global/fetchData.ts";
 import NotificationTimer from "../../global/components/NotificationTimer.tsx";
 import { displayErrorPopup, displaySuccessPopup } from "../../global/popUp.ts";
 import { useAppDispatch, useAppSelector } from "../../global/redux/hooks.ts";
@@ -7,6 +7,7 @@ import { loadUserState } from "../../global/localStorage.ts";
 import { selectFetchIds } from "../../global/redux/articles/selectors.ts";
 import { Article } from "../../global/types.ts";
 import { setArticlesData, setIds } from "../../global/redux/articles/reducer.ts";
+import ArticleDeletionConfirmationModal from "./components/ArticleDeletionConfirmationModal.tsx";
 
 const ManageArticles = () => {
     // todo: add modals (as components) to update and delete articles + a preview modal + prompt to confirm deletion/edition
@@ -20,6 +21,8 @@ const ManageArticles = () => {
     const userState = loadUserState();
     const fetchedIds = useAppSelector(selectFetchIds);
     const dispatch = useAppDispatch();
+    const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+    const [isArticleDeletionModalOpen, setIsArticleDeletionModalOpen] = useState(false);
 
     const displayPopup = (type: "success" | "error", title: string, message: string) => {
         if (type === "error") {
@@ -46,27 +49,47 @@ const ManageArticles = () => {
         }, 4000);
     };
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            let result = await postData("articles-ids", { userId: userState?.id });
-            if (!result.success) {
-                displayPopup("error", "Failed to fetch articles", result.error as string);
-                return;
-            }
-            const fetchedIds = result.data.ids;
-            dispatch(setIds(result.data.ids));
+    const fetchArticles = async () => {
+        let result = await postData("articles-ids", { userId: userState?.id });
+        if (!result.success) {
+            displayPopup("error", "Failed to fetch articles", result.error as string);
+            return;
+        }
+        const fetchedIds = result.data.ids;
+        dispatch(setIds(result.data.ids));
 
-            result = await postData("articles-data", { ids: fetchedIds.slice(0, 25) });
-            if (!result.success) {
-                displayPopup("error", "Failed to fetch articles", result.error as string);
-                return;
-            }
-            setArticles(result.data.articles);
-            dispatch(setArticlesData(result.data.articles));
-            setLoading(false);
-        };
+        result = await postData("articles-data", { ids: fetchedIds.slice(0, 25) });
+        if (!result.success) {
+            displayPopup("error", "Failed to fetch articles", result.error as string);
+            return;
+        }
+        setArticles(result.data.articles);
+        dispatch(setArticlesData(result.data.articles));
+        setLoading(false);
+    };
+
+    useEffect(() => {
         void fetchArticles();
-    }, [dispatch, userState?.id]);
+    }, []);
+
+
+    const openArticleDeletionModal = (articleId: number) => {
+        setSelectedArticleId(articleId);
+        setIsArticleDeletionModalOpen(true);
+    };
+
+    const handleArticleDeletion = async () => {
+        const result = await deleteData("user/article", { ids: [selectedArticleId] });
+        setIsArticleDeletionModalOpen(false);
+
+        if (!result.success) {
+            displayPopup("error", "Failed to delete article", result.error as string);
+            return;
+        } else {
+            displayPopup("success", "Success", "Article deleted successfully");
+            void fetchArticles();
+        }
+    };
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen text-xl text-gray-700">Loading...</div>;
@@ -80,6 +103,13 @@ const ManageArticles = () => {
                 notificationMessage={notificationMessage}
                 backgroundColor={backgroundColor}
                 onDismiss={() => setShowNotification(false)}
+            />
+            <ArticleDeletionConfirmationModal
+                isOpen={isArticleDeletionModalOpen}
+                onClose={() => setIsArticleDeletionModalOpen(false)}
+                onConfirm={() => {
+                    void handleArticleDeletion();
+                }}
             />
             <div className="min-h-screen bg-gray-100 py-6 px-4 sm:px-8">
                 <div className="max-w-6xl mx-auto">
@@ -107,6 +137,7 @@ const ManageArticles = () => {
                                         Edit
                                     </button>
                                     <button
+                                        onClick={() => openArticleDeletionModal(article.id)}
                                         className="px-3 py-1 text-sm text-red-500 border border-red-500 rounded hover:bg-red-100"
                                     >
                                         Delete
