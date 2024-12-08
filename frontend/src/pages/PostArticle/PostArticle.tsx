@@ -181,10 +181,10 @@ const PostArticle = () => {
 
                     {/* File Upload */}
                     <div className="space-y-2">
-                        <label className="block text-gray-700">Miniature Image</label>
+                        <label className="block text-gray-700">Miniature Image (only .png file accepted)</label>
                         <input
                             type="file"
-                            accept="image/*"
+                            accept="image/png"
                             onChange={handleFileChange}
                             className="w-full border rounded px-4 py-2"
                         />
