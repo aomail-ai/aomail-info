@@ -32,7 +32,7 @@ public class ProfileController {
     }
 
 
-    @GetMapping(consumes = "application/json", produces = "application/json")
+    @GetMapping(produces = "application/json")
     public ResponseEntity<?> profile(HttpServletRequest httpRequest) {
         try {
             String sessionId = SessionHelper.getSessionIdFromCookie(httpRequest);
@@ -67,17 +67,17 @@ public class ProfileController {
             String newPassword = updateProfileRequest.getNewPassword();
 
             if (!appUser.getPassword().equals(passwordEncoder.encode(currentPassword))) {
-                if (!name.isEmpty()) {
+                if (name != null) {
                     appUser.setName(name);
                 }
-                if (!surname.isEmpty()) {
+                if (surname != null) {
                     appUser.setSurname(surname);
                 }
-                if (!username.isEmpty()) {
+                if (username != null) {
                     appUser.setUsername(username);
                 }
-                if (!newPassword.isEmpty()) {
-                    appUser.setPassword(newPassword);
+                if (newPassword != null) {
+                    appUser.setPassword(passwordEncoder.encode(newPassword));
                 }
             } else {
                 logger.debug("Update profile request refused due to incorrect current password");
@@ -90,11 +90,8 @@ public class ProfileController {
             logger.info("Profile updated successfully for user: {}", appUser.getUsername());
 
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "username", appUser.getUsername(),
-                    "name", appUser.getName(),
-                    "surname", appUser.getSurname(),
-                    "createdAt", appUser.getCreatedAt()
-            ));
+                    "msg", "Profile updated successfully. Log in again with your new credentials")
+            );
         } catch (Exception e) {
             logger.error("Error while updating profile", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Internal server error"));

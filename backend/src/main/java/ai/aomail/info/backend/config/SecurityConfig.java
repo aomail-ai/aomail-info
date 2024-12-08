@@ -5,6 +5,7 @@ import ai.aomail.info.backend.repositories.AppUserRepository;
 import ai.aomail.info.backend.security.SessionFilter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -27,6 +28,10 @@ public class SecurityConfig {
     private final Logger logger = Logger.getLogger(SecurityConfig.class.getName());
     private final AppUserRepository appUserRepository;
     private final SessionFilter sessionFilter;
+    @Value("${DEFAULT_ADMIN_USERNAME}")
+    private String defaultAdminUsername;
+    @Value("${DEFAULT_ADMIN_PASSWORD}")
+    private String defaultAdminPassword;
 
     public SecurityConfig(AppUserRepository appUserRepository, @Lazy SessionFilter sessionFilter) {
         this.appUserRepository = appUserRepository;
@@ -36,15 +41,14 @@ public class SecurityConfig {
 
     // Create user if it doesn't exist on startup
     @PostConstruct
-    public void createDefaultUser() {
-        String adminUsername = "admin";
-        if (appUserRepository.findByUsername(adminUsername) == null) {
+    public void createDefaultAdmin() {
+        if (appUserRepository.findByUsername(defaultAdminUsername) == null) {
             AppUser admin = new AppUser();
-            admin.setName("Admin");
-            admin.setSurname("Admin");
-            admin.setUsername(adminUsername);
-            admin.setPassword(passwordEncoder().encode("password"));
+            admin.setUsername(defaultAdminUsername);
+            admin.setPassword(passwordEncoder().encode(defaultAdminPassword));
             admin.setAdministrator(true);
+            admin.setSurname("Admin");
+            admin.setName("Admin");
             appUserRepository.save(admin);
             logger.info("Default admin user created successfully.");
         } else {

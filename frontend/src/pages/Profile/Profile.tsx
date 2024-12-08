@@ -128,36 +128,38 @@ const Profile = () => {
                     <div className="mt-6 space-y-6">
                         {/* Display Profile Fields */}
                         <div className="flex justify-between items-center">
-                            <p className="text-gray-700">Username</p>
+                            <p className="text-gray-700 font-semibold w-32">Username</p>
                             <div className="flex space-x-4">
                                 <input
                                     type="text"
                                     className="border rounded px-4 py-2 text-sm w-full"
-                                    placeholder="Username"
+                                    placeholder={profileData.username}
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                 />
                             </div>
                         </div>
+
                         <div className="flex justify-between items-center">
-                            <p className="text-gray-700">Name</p>
+                            <p className="text-gray-700 font-semibold w-32">Name</p>
                             <div className="flex space-x-4">
                                 <input
                                     type="text"
                                     className="border rounded px-4 py-2 text-sm w-full"
-                                    placeholder="Name"
+                                    placeholder={profileData.name}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
                             </div>
                         </div>
+
                         <div className="flex justify-between items-center">
-                            <p className="text-gray-700">Surname</p>
+                            <p className="text-gray-700 font-semibold w-32">Surname</p>
                             <div className="flex space-x-4">
                                 <input
                                     type="text"
                                     className="border rounded px-4 py-2 text-sm w-full"
-                                    placeholder="Surname"
+                                    placeholder={profileData.surname}
                                     value={surname}
                                     onChange={(e) => setSurname(e.target.value)}
                                 />
@@ -194,7 +196,6 @@ const Profile = () => {
                     >
                         Update Profile
                     </button>
-
                     <button
                         onClick={() => setIsAccountDeletionConfirmationModalOpen(true)}
                         className="ml-4 px-3 py-1 text-sm text-red-600 border border-red-600 rounded  hover:bg-red-100"
