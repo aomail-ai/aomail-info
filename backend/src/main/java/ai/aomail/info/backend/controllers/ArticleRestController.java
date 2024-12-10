@@ -80,7 +80,7 @@ public class ArticleRestController {
 
     @PutMapping(consumes = "multipart/form-data", produces = "application/json")
     public ResponseEntity<?> updateArticle(
-            @RequestParam("id") int id,
+            @RequestParam("id") String id,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("content") String content,
@@ -93,7 +93,7 @@ public class ArticleRestController {
         Session session = validateSession(httpRequest);
         if (session == null) return unauthorizedResponse();
 
-        Article article = articleRepository.findById(id).orElse(null);
+        Article article = articleRepository.findById(Integer.parseInt(id)).orElse(null);
         if (article == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Article not found"));
         } else if (!article.getUser().equals(session.getUser())) {
@@ -109,9 +109,11 @@ public class ArticleRestController {
         article.setDescription(description);
         article.setContent(content);
         article.setMiniatureFileName(uniqueFilename);
+        logger.debug("Article fields updated");
 
         List<Tag> tags = processTags(tagsJson, article);
         article.setTags(tags);
+        logger.debug("Tags processed and linked to the article");
         articleRepository.save(article);
 
         logger.debug("Article updated successfully with ID {}", id);

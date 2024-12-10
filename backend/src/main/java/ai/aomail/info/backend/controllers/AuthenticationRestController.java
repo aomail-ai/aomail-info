@@ -134,6 +134,8 @@ public class AuthenticationRestController {
 
         if (name == null || password == null || surname == null || username == null) {
             return ResponseEntity.status(400).body(Map.of("error", "All fields are required"));
+        } else if (password.length() < 8 || password.length() > 128) {
+            return ResponseEntity.status(400).body(Map.of("error", "Password must be between 8 and 128 characters"));
         }
 
         try {
@@ -152,5 +154,16 @@ public class AuthenticationRestController {
 
         logger.info("User {} created successfully", username);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("msg", "User created successfully"));
+    }
+
+    @GetMapping(value = "/is-username-available", produces = "application/json")
+    public ResponseEntity<?> isUsernameAvailable(@RequestParam String username) {
+        logger.debug("Checking if username {} is available", username);
+        try {
+            appUserService.findByUsername(username);
+            return ResponseEntity.ok(Map.of("available", false));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.ok(Map.of("available", true));
+        }
     }
 }

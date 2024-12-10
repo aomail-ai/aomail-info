@@ -8,9 +8,18 @@ import { selectFetchIds } from "../../global/redux/articles/selectors.ts";
 import { Article } from "../../global/types.ts";
 import { setArticlesData, setIds } from "../../global/redux/articles/reducer.ts";
 import ArticleDeletionConfirmationModal from "./components/ArticleDeletionConfirmationModal.tsx";
+import ArticleEditionModal from "./components/ArticleEditionModal.tsx";
+import { fetchWithToken } from "../../global/security.ts";
+import { API_BASE_URL } from "../../global/constants.ts";
+import Quill from "quill";
 
 const ManageArticles = () => {
-    // todo: add modals (as components) to update and delete articles + a preview modal + prompt to confirm deletion/edition
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [content, setContent] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+    const [miniatureFile, setMiniatureFile] = useState<File | null>(null);
+    const editorRef = useRef<Quill | null>(null);
     const [loading, setLoading] = useState(true);
     const [articles, setArticles] = useState<Article[]>([]);
     const [showNotification, setShowNotification] = useState(false);
@@ -23,6 +32,7 @@ const ManageArticles = () => {
     const dispatch = useAppDispatch();
     const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
     const [isArticleDeletionModalOpen, setIsArticleDeletionModalOpen] = useState(false);
+    const [isArticleEditionModalOpen, setIsArticleEditionModalOpen] = useState(false);
 
     const displayPopup = (type: "success" | "error", title: string, message: string) => {
         if (type === "error") {
@@ -91,6 +101,70 @@ const ManageArticles = () => {
         }
     };
 
+    const openArticleEditionModal = (articleId: number) => {
+        setSelectedArticleId(articleId);
+        setIsArticleEditionModalOpen(true);
+        setTitle(articles.find((article) => article.id === articleId)!.title);
+        setDescription(articles.find((article) => article.id === articleId)!.description);
+        setContent(articles.find((article) => article.id === articleId)!.content);
+        setTags(articles.find((article) => article.id === articleId)!.tags.map((tag) => tag.name));
+    };
+
+    const handleArticleEdition = async () => {
+        if (!title) {
+            displayPopup("error", "Failed to edit article", "Title is required");
+            return;
+        } else if (!description) {
+            displayPopup("error", "Failed to edit article", "Description is required");
+            return;
+        } else if (!content) {
+            displayPopup("error", "Failed to edit article", "Content is required");
+            return;
+        } else if (!miniatureFile) {
+            displayPopup("error", "Failed to edit article", "Miniature is required");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("id", selectedArticleId!.toString());
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("content", content);
+        formData.append("tags", JSON.stringify(tags));
+
+        if (miniatureFile) {
+            formData.append("miniature", miniatureFile);
+        }
+
+
+        const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
+            method: "PUT",
+            body: formData
+        });
+
+        if (!response) {
+            displayPopup("error", "Failed to edit article", "No server response");
+            return;
+        }
+
+        if (response.ok) {
+            displayPopup("success", "Success", "Article edited successfully!");
+            setTitle("");
+            setDescription("");
+            setContent("");
+            setTags([]);
+            setMiniatureFile(null);
+            editorRef.current!.root.innerHTML = "";
+        } else {
+            try {
+                const data = await response.json();
+                displayPopup("error", "Failed to edit article", data.error ? data.error : "Unknown error");
+            } catch {
+                displayPopup("error", "Failed to edit article", "Unknown error");
+            }
+        }
+    };
+
     if (loading) {
         return <div className="flex items-center justify-center h-screen text-xl text-gray-700">Loading...</div>;
     }
@@ -111,6 +185,21 @@ const ManageArticles = () => {
                     void handleArticleDeletion();
                 }}
             />
+            <ArticleEditionModal
+                isOpen={isArticleEditionModalOpen}
+                onClose={() => setIsArticleEditionModalOpen(false)}
+                onConfirm={() => {
+                    void handleArticleEdition();
+                }}
+                title={title}
+                setTitle={setTitle}
+                description={description}
+                setDescription={setDescription}
+                setContent={setContent}
+                tags={tags}
+                setTags={setTags}
+                setMiniatureFile={setMiniatureFile}
+            />
             <div className="min-h-screen bg-gray-100 py-6 px-4 sm:px-8">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
@@ -126,12 +215,13 @@ const ManageArticles = () => {
                                     </p>
                                 </div>
                                 <div className="flex justify-end mt-4 space-x-2">
-                                    <button
-                                        className="px-3 py-1 text-sm text-blue-500 border border-blue-500 rounded hover:bg-blue-100"
+                                    <a href={`/article/${article.id}`} target="_blank"
+                                       className="px-3 py-1 text-sm text-blue-500 border border-blue-500 rounded hover:bg-blue-100"
                                     >
                                         Preview
-                                    </button>
+                                    </a>
                                     <button
+                                        onClick={() => openArticleEditionModal(article.id)}
                                         className="px-3 py-1 text-sm text-yellow-500 border border-yellow-500 rounded hover:bg-yellow-100"
                                     >
                                         Edit

@@ -27,7 +27,7 @@ export interface Article {
     createdAt: string;
     updatedAt: string;
     reactions: Reaction[];
-    Tags: Tag[];
+    tags: Tag[];
 }
 
 export interface Filters {
