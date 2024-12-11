@@ -32,11 +32,9 @@ const SideBar = () => {
         setVisible(!visible);
     };
     const logout = async () => {
-        const result = await getData("user/logout");
-        if (result.success) {
-            saveUserState({ ...userState, isConnected: false });
-            navigate("/");
-        }
+        await getData("user/logout");
+        saveUserState({ ...userState, isConnected: false });
+        navigate("/");
     };
     const update = () => {
         dispatch(setFilters({ tags: ["update"], advanced: true }));

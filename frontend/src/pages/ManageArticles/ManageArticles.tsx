@@ -111,31 +111,23 @@ const ManageArticles = () => {
     };
 
     const handleArticleEdition = async () => {
-        if (!title) {
-            displayPopup("error", "Failed to edit article", "Title is required");
-            return;
-        } else if (!description) {
-            displayPopup("error", "Failed to edit article", "Description is required");
-            return;
-        } else if (!content) {
-            displayPopup("error", "Failed to edit article", "Content is required");
-            return;
-        } else if (!miniatureFile) {
-            displayPopup("error", "Failed to edit article", "Miniature is required");
-            return;
-        }
-
         const formData = new FormData();
         formData.append("id", selectedArticleId!.toString());
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("content", content);
-        formData.append("tags", JSON.stringify(tags));
-
+        if (tags) {
+            formData.append("tags", JSON.stringify(tags));
+        }
+        if (title) {
+            formData.append("title", title);
+        }
+        if (description) {
+            formData.append("description", description);
+        }
+        if (content) {
+            formData.append("content", content);
+        }
         if (miniatureFile) {
             formData.append("miniature", miniatureFile);
         }
-
 
         const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
             method: "PUT",
@@ -155,6 +147,7 @@ const ManageArticles = () => {
             setTags([]);
             setMiniatureFile(null);
             editorRef.current!.root.innerHTML = "";
+            void fetchArticles();
         } else {
             try {
                 const data = await response.json();

@@ -47,14 +47,7 @@ public class ArticleRestController {
     }
 
     @PostMapping(consumes = "multipart/form-data", produces = "application/json")
-    public ResponseEntity<?> createArticle(
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            @RequestParam("content") String content,
-            @RequestParam("tags") String tagsJson,
-            @RequestParam("miniature") MultipartFile miniatureFile,
-            HttpServletRequest httpRequest
-    ) throws IOException {
+    public ResponseEntity<?> createArticle(@RequestParam("title") String title, @RequestParam("description") String description, @RequestParam("content") String content, @RequestParam("tags") String tagsJson, @RequestParam("miniature") MultipartFile miniatureFile, HttpServletRequest httpRequest) throws IOException {
         logger.debug("POST: Creating an article");
 
         Session session = validateSession(httpRequest);
@@ -79,15 +72,7 @@ public class ArticleRestController {
     }
 
     @PutMapping(consumes = "multipart/form-data", produces = "application/json")
-    public ResponseEntity<?> updateArticle(
-            @RequestParam("id") String id,
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            @RequestParam("content") String content,
-            @RequestParam("tags") String tagsJson,
-            @RequestParam("miniature") MultipartFile miniatureFile,
-            HttpServletRequest httpRequest
-    ) throws IOException {
+    public ResponseEntity<?> updateArticle(@RequestParam("id") String id, @RequestParam(value = "title", required = false) String title, @RequestParam(value = "description", required = false) String description, @RequestParam(value = "content", required = false) String content, @RequestParam(value = "tags", required = false) String tagsJson, @RequestParam(value = "miniature", required = false) MultipartFile miniatureFile, HttpServletRequest httpRequest) throws IOException {
         logger.debug("PUT: Updating an article with ID {}", id);
 
         Session session = validateSession(httpRequest);
@@ -100,19 +85,28 @@ public class ArticleRestController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Not authorized to update this article"));
         }
 
-        validateArticleFields(title, description, content, miniatureFile);
+        if (miniatureFile != null) {
+            String uniqueFilename = uploadMiniature(miniatureFile);
+            logger.debug("Miniature uploaded with filename: {}", uniqueFilename);
+            article.setMiniatureFileName(uniqueFilename);
+        }
 
-        String uniqueFilename = uploadMiniature(miniatureFile);
-        logger.debug("Miniature uploaded with filename: {}", uniqueFilename);
-
-        article.setTitle(title);
-        article.setDescription(description);
-        article.setContent(content);
-        article.setMiniatureFileName(uniqueFilename);
+        if (title != null && !title.isEmpty()) {
+            article.setTitle(title);
+        }
+        if (description != null && !description.isEmpty()) {
+            article.setDescription(description);
+        }
+        if (content != null && !content.isEmpty()) {
+            article.setContent(content);
+        }
         logger.debug("Article fields updated");
 
-        List<Tag> tags = processTags(tagsJson, article);
-        article.setTags(tags);
+        if (tagsJson != null) {
+            article.getTags().clear();
+            List<Tag> newTags = processTags(tagsJson, article);
+            article.getTags().addAll(newTags);
+        }
         logger.debug("Tags processed and linked to the article");
         articleRepository.save(article);
 
@@ -172,9 +166,8 @@ public class ArticleRestController {
     }
 
     private List<Tag> processTags(String tagsJson, Article article) throws IOException {
-        List<String> tagNames = new ObjectMapper().readValue(
-                tagsJson, new TypeReference<>() {
-                });
+        List<String> tagNames = new ObjectMapper().readValue(tagsJson, new TypeReference<>() {
+        });
 
         List<Tag> tags = new ArrayList<>();
         for (String tagName : tagNames) {
@@ -203,10 +196,7 @@ public class ArticleRestController {
     }
 
     private void validateArticleFields(String title, String description, String content, MultipartFile miniatureFile) {
-        if (title == null || title.isEmpty() ||
-                description == null || description.isEmpty() ||
-                content == null || content.isEmpty() ||
-                (miniatureFile == null || miniatureFile.isEmpty())) {
+        if (title == null || title.isEmpty() || description == null || description.isEmpty() || content == null || content.isEmpty() || (miniatureFile == null || miniatureFile.isEmpty())) {
             throw new IllegalArgumentException("Title, content, description, and miniature file are required");
         }
     }
