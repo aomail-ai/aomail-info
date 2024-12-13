@@ -4,7 +4,8 @@ import ai.aomail.info.backend.models.AppUser;
 import ai.aomail.info.backend.repositories.AppUserRepository;
 import ai.aomail.info.backend.security.SessionFilter;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,12 +21,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.logging.Logger;
-
-@Slf4j
 @Configuration
 public class SecurityConfig {
-    private final Logger logger = Logger.getLogger(SecurityConfig.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SecurityConfig.class.getName());
     private final AppUserRepository appUserRepository;
     private final SessionFilter sessionFilter;
     @Value("${DEFAULT_ADMIN_USERNAME}")
@@ -50,9 +48,9 @@ public class SecurityConfig {
             admin.setSurname("Admin");
             admin.setName("Admin");
             appUserRepository.save(admin);
-            logger.info("Default admin user created successfully.");
+            logger.info("Default admin {} created.", defaultAdminUsername);
         } else {
-            logger.info("Admin user already exists.");
+            logger.info("Admin {} already exists.", defaultAdminUsername);
         }
     }
 

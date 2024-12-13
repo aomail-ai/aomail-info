@@ -29,6 +29,9 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - DB_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
       - BACKEND_PORT=${BACKEND_PORT}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
 
   frontend_prod:
     build:
