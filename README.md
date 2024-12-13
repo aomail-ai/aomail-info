@@ -2,7 +2,7 @@
 
 This project is a full-stack web application designed to showcase the features of [Aomail](https://aomail/), an
 AI-powered email management app. It has been built to enable co-founders to create and publish articles that enhance the
-website's SEO.
+website's SEO. Check out the live website [here](https://info.aomail.ai/).
 
 The website will feature articles about:
 

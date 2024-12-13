@@ -66,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:3000")); // Frontend origin
+        configuration.setAllowedOrigins(java.util.List.of("http://localhost:3000", "https://info.aomail.ai")); // Frontend origin
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(java.util.List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);

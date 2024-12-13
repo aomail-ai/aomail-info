@@ -131,7 +131,7 @@ const ManageArticles = () => {
 
         const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
             method: "PUT",
-            body: formData
+            body: formData as BodyInit
         });
 
         if (!response) {

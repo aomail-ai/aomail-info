@@ -68,7 +68,7 @@ export default function Home() {
         };
 
         void fetchArticles();
-    });
+    }, []);
 
 
     if (loading) {

@@ -74,7 +74,7 @@ const PostArticle = () => {
 
         const response = await fetchWithToken(`${API_BASE_URL}user/article`, {
             method: "POST",
-            body: formData
+            body: formData as BodyInit
         });
 
         if (!response) {
@@ -111,7 +111,7 @@ const PostArticle = () => {
                 onDismiss={() => setShowNotification(false)}
             />
             <ArticleEditor
-                modalTitle="Post Article"
+                componentType="Post Article"
                 title={title}
                 setTitle={setTitle}
                 description={description}

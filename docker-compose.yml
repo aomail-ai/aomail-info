@@ -18,7 +18,6 @@ services:
   backend_prod:
     build:
       context: ./backend
-      target: production
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
@@ -34,7 +33,10 @@ services:
   frontend_prod:
     build:
       context: ./frontend
-      target: production
+      args:
+        BASE_URL: ${BASE_URL}
+    environment:
+      - VITE_BASE_URL=${BASE_URL}
     ports:
       - "${FRONTEND_PORT}:3000"
     depends_on:

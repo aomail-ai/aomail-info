@@ -1,14 +1,13 @@
 # Base stage for building the application
-FROM node:lts-alpine AS base
+FROM node:lts-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+
 COPY . .
+ARG BASE_URL
+ENV VITE_BASE_URL=$BASE_URL
+RUN npm run build
 
-# Production mode
-FROM base AS production
-CMD ["npm", "run", "build"]
-
-COPY --from=base /app/dist /app/dist
-EXPOSE 3000
-CMD ["npm", "run", "preview"]
+COPY . .
+CMD [ "npm", "run", "preview" ]
