@@ -31,7 +31,9 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-
+      - MINIATURE_PATH=${MINIATURE_PATH}
+    volumes:
+      - /home/prod/aomail-info/backend/src/main/resources/static/miniatureImages:/app/src/main/resources/static/miniatureImages
 
   frontend_prod:
     build:

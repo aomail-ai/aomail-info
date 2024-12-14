@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +38,9 @@ public class ArticleRestController {
     private final TagRepository tagRepository;
     private final SessionRepository sessionRepository;
     private final AppUserService appUserService;
+
+    @Value("${DEFAULT_MINITATURE_PATH}")
+    private String defaultMiniaturePath;
 
     @Autowired
     public ArticleRestController(ArticleRepository articleRepository, TagRepository tagRepository, SessionRepository sessionRepository, AppUserService appUserService) {
@@ -137,7 +141,7 @@ public class ArticleRestController {
             }
             articleRepository.delete(article);
             String miniatureFilename = article.getMiniatureFileName();
-            Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureImages/" + miniatureFilename);
+            Path miniaturePath = Paths.get(defaultMiniaturePath + miniatureFilename);
             try {
                 Files.delete(miniaturePath);
                 logger.debug("Miniature file deleted successfully");
@@ -158,7 +162,8 @@ public class ArticleRestController {
         String originalFilename = miniatureFile.getOriginalFilename();
         String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
 
-        Path miniaturePath = Paths.get("backend/src/main/resources/static/miniatureImages/" + uniqueFilename);
+        Path miniaturePath = Paths.get(defaultMiniaturePath + uniqueFilename);
+
         Files.createDirectories(miniaturePath.getParent());
         Files.write(miniaturePath, miniatureFile.getBytes());
 
