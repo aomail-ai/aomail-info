@@ -55,6 +55,9 @@ spring.datasource.password=password
 spring.jpa.hibernate.ddl-auto=update
 logging.level.ai.aomail.info.backend=TRACE
 logging.level.org.springframework.security=TRACE
+spring.main.allow-circular-references=true
+server.address=0.0.0.0
+server.port=8086
 ```
 
 - **Using IntelliJ IDEA:**
@@ -106,11 +109,15 @@ Create a script named `build.sh` with the following content:
 export POSTGRES_USER=<your_postgres_user>
 export POSTGRES_PASSWORD=<your_postgres_password>
 export POSTGRES_DB=<your_postgres_db>
-export DB_PORT=<your_db_port>
+export DB_PORT=<your_postgres_db_port>
 export BACKEND_PORT=<your_backend_port>
 export FRONTEND_PORT=<your_frontend_port>
+export BASE_URL=<your_base_url>
+export ADMIN_USERNAME=<your_admin_username>
+export ADMIN_PASSWORD=<your_admin_password>
+export MINIATURE_PATH=<your_miniature_path>
 
-docker-compose up --build -d frontend_prod backend_prod
+docker compose up --build -d frontend_prod backend_prod --remove-orphans
 ```
 
 Then run the script:

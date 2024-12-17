@@ -62,6 +62,8 @@ export default function ArticleDetail() {
                 <div className="prose prose-lg max-w-none">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
                     <div className="text-gray-500 mb-8">
+                        <span>Author: {article.authorSurname} {article.authorName}</span>
+                        <br />
                         <span>Created on: {formatDate(article.createdAt)}</span>
                         {article.updatedAt && (
                             <>

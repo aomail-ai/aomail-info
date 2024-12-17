@@ -47,6 +47,8 @@ export default function Home() {
             let result;
             if (filters.advanced) {
                 result = await postData("articles-ids", filters);
+            } else if (filters.search) {
+                result = await postData("articles-ids", { search: filters.search });
             } else {
                 result = await postData("articles-ids", {});
             }
@@ -68,7 +70,7 @@ export default function Home() {
         };
 
         void fetchArticles();
-    }, []);
+    }, [filters]);
 
 
     if (loading) {

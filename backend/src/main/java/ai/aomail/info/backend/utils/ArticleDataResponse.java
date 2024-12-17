@@ -18,6 +18,7 @@ public class ArticleDataResponse {
     private final String content;
     private final String miniatureFileName;
     private final String authorName;
+    private final String authorSurname;
     private final Date createdAt;
     private final Date updatedAt;
     private final List<Reaction> reactions;
@@ -31,6 +32,7 @@ public class ArticleDataResponse {
             String content,
             String miniatureFileName,
             String authorName,
+            String authorSurname,
             Date createdAt,
             Date updatedAt,
             List<Reaction> reactions,
@@ -42,6 +44,7 @@ public class ArticleDataResponse {
         this.content = content;
         this.miniatureFileName = miniatureFileName;
         this.authorName = authorName;
+        this.authorSurname = authorSurname;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.reactions = reactions;

@@ -1,10 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MagnifyingGlassIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
+import { postData } from "../fetchData.ts";
+import { setArticlesData, setFilters, setIds } from "../redux/articles/reducer.ts";
+import { useAppDispatch } from "../redux/hooks.ts";
+import { useNavigate } from "react-router-dom";
 
 const SearchBar = () => {
     const { t } = useTranslation();
     const [inputValue, setInputValue] = useState("");
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
+    const fetchArticles = async () => {
+        let result;
+        if (inputValue) {
+            result = await postData("articles-ids", { search: inputValue });
+        } else {
+            result = await postData("articles-ids", {});
+        }
+
+        if (!result.success) {
+            return;
+        }
+        const fetchedIds = result.data.ids;
+        dispatch(setIds(result.data.ids));
+
+        result = await postData("articles-data", { ids: fetchedIds.slice(0, 25) });
+        if (!result.success) {
+            return;
+        }
+        dispatch(setArticlesData(result.data.articles));
+    };
+
+
+    useEffect(() => {
+
+
+        if (!inputValue) void fetchArticles();
+
+        const timer = setTimeout(() => {
+            if (inputValue) {
+                if (window.location.pathname !== "/") {
+                    if (inputValue) {
+                        dispatch(setFilters({ search: inputValue }));
+                        navigate("/");
+                    }
+                } else {
+                    void fetchArticles();
+                }
+            }
+        }, 900);
+
+        return () => clearTimeout(timer);
+
+    }, [inputValue]);
 
     return (
         <div className="relative inline-block">

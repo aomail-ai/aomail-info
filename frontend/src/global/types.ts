@@ -24,6 +24,7 @@ export interface Article {
     content: string;
     miniatureFileName: string;
     authorName: string;
+    authorSurname: string;
     createdAt: string;
     updatedAt: string;
     reactions: Reaction[];
