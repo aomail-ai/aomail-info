@@ -24,6 +24,7 @@ public class Article {
     @Setter
     private String description;
 
+    @Lob
     @Column(nullable = false)
     private String content;
 

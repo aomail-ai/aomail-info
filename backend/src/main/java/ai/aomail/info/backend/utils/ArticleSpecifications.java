@@ -38,12 +38,6 @@ public class ArticleSpecifications {
                         lowerSearch
                 ));
 
-                // Add search on content
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("content")),
-                        lowerSearch
-                ));
-
                 // Add search on author name
                 Join<Article, AppUser> userJoin = root.join("user", JoinType.LEFT);
                 predicates.add(criteriaBuilder.like(

@@ -6,6 +6,7 @@ import DOMPurify from "dompurify";
 import { postData } from "../../../global/fetchData";
 import { Article } from "../../../global/types";
 import { API_BASE_URL } from "../../../global/constants.ts";
+import { formatDate } from "../../../global/formatters.ts";
 
 export default function ArticleDetail() {
     const { id } = useParams();
@@ -42,24 +43,21 @@ export default function ArticleDetail() {
 
     const sanitizedContent = DOMPurify.sanitize(article.content);
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }).format(date);
-    };
-
     return (
-        <div className="py-12">
-            <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-12 bg-gray-50">
+            <article className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                 <img
                     src={`${API_BASE_URL}miniature-data/${article.miniatureFileName}`}
                     alt={article.title}
-                    className="w-full h-[400px] object-cover rounded-lg shadow-lg mb-8"
+                    className="w-full h-auto max-h-[400px] object-cover rounded-lg shadow-lg mb-8"
                 />
-                <div className="prose prose-lg max-w-none">
+                <div
+                    className="prose prose-lg sm:prose-sm lg:prose-lg max-w-[800px] mx-auto"
+                    style={{
+                        maxWidth: "800px",
+                        wordWrap: "break-word"
+                    }}
+                >
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
                     <div className="text-gray-500 mb-8">
                         <span>Author: {article.authorSurname} {article.authorName}</span>
@@ -74,7 +72,6 @@ export default function ArticleDetail() {
                     </div>
                     <p className="text-xl text-gray-600 mb-8 font-medium">{article.description}</p>
                     <div
-                        className="text-gray-800 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                     ></div>
                 </div>
