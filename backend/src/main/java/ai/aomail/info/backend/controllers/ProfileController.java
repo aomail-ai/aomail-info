@@ -67,16 +67,16 @@ public class ProfileController {
             String newPassword = updateProfileRequest.getNewPassword();
 
             if (!appUser.getPassword().equals(passwordEncoder.encode(currentPassword))) {
-                if (name != null) {
+                if (name != null && !name.isEmpty()) {
                     appUser.setName(name);
                 }
-                if (surname != null) {
+                if (surname != null && !surname.isEmpty()) {
                     appUser.setSurname(surname);
                 }
-                if (username != null) {
+                if (username != null && !username.isEmpty()) {
                     appUser.setUsername(username);
                 }
-                if (newPassword != null) {
+                if (newPassword != null && !newPassword.isEmpty()) {
                     appUser.setPassword(passwordEncoder.encode(newPassword));
                 }
             } else {
