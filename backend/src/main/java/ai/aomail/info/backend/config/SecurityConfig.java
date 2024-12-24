@@ -84,6 +84,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/is-username-available")
                         .ignoringRequestMatchers("/api/signup")
                         .ignoringRequestMatchers("/api/login")
+                        .ignoringRequestMatchers("/api/sitemap.xml")
                         .ignoringRequestMatchers("/api/miniature-data/**")
                         .ignoringRequestMatchers("/api/articles-ids")
                         .ignoringRequestMatchers("/api/articles-data")
@@ -91,6 +92,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorization -> authorization
                         .requestMatchers("/api/signup").hasAuthority("ADMIN")
                         .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/sitemap.xml").permitAll()
                         .requestMatchers("/api/is-username-available").permitAll()
                         .requestMatchers("/api/miniature-data/**").permitAll()
                         .requestMatchers("/api/articles-ids").permitAll()

@@ -6,3 +6,7 @@ export const formatDate = (dateString: string, locales = "en-US") => {
         day: "numeric"
     }).format(date);
 };
+
+export const getSlug = (title: string) => {
+    return title.toLowerCase().replace(/\s+/g, "-");
+};

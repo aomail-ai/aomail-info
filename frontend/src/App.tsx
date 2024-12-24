@@ -43,7 +43,7 @@ function App() {
                             <Route path="/post-article" element={<RequireAuth Component={PostArticle} />} />
                             <Route path="/manage-articles" element={<RequireAuth Component={ManageArticles} />} />
                             <Route path="/profile" element={<RequireAuth Component={Profile} />} />
-                            <Route path="/article/:id" element={<ArticleDetail />} />
+                            <Route path="/article/:id/:title" element={<ArticleDetail />} />
                             <Route path="/terms-of-service" element={<TermsOfService />} />
                             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                             <Route path="/not-authorized" element={<NotAuthorized />} />

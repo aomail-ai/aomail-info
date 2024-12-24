@@ -32,6 +32,7 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - MINIATURE_PATH=${MINIATURE_PATH}
+      - BASE_URL=${BASE_URL}
     volumes:
       - /home/prod/aomail-info/backend/src/main/resources/static/miniatureImages:/app/src/main/resources/static/miniatureImages
 

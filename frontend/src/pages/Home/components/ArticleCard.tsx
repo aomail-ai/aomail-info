@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../../global/redux/hooks.ts";
 import { useNavigate } from "react-router-dom";
 import { setRecentlyViewedArticles } from "../../../global/redux/articles/reducer.ts";
 import { API_BASE_URL } from "../../../global/constants.ts";
+import { getSlug } from "../../../global/formatters.ts";
 
 interface ArticleCardProps {
     article: Article;
@@ -15,7 +16,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
     const readMore = () => {
         dispatch(setRecentlyViewedArticles([article, ...recentlyViewedArticles]));
-        navigate(`/article/${article.id}`);
+        navigate(`/article/${article.id}/${getSlug(article.title)}`);
     };
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
