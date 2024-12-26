@@ -1,3 +1,5 @@
+import slugify from "slugify";
+
 export const formatDate = (dateString: string, locales = "en-US") => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(locales, {
@@ -8,5 +10,8 @@ export const formatDate = (dateString: string, locales = "en-US") => {
 };
 
 export const getSlug = (title: string) => {
-    return title.toLowerCase().replace(/\s+/g, "-");
+    return slugify(title, {
+        lower: true,
+        trim: true
+    });
 };

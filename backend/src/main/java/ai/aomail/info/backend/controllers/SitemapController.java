@@ -2,6 +2,7 @@ package ai.aomail.info.backend.controllers;
 
 import ai.aomail.info.backend.models.Article;
 import ai.aomail.info.backend.repositories.ArticleRepository;
+import com.github.slugify.Slugify;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class SitemapController {
     }
 
     public String getSlug(String title) {
-        return title.toLowerCase().replaceAll(" ", "-");
+        return Slugify.builder().build().slugify(title);
     }
 }
 
