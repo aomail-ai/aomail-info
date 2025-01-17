@@ -12,6 +12,7 @@ import ArticleEditionModal from "./components/ArticleEditionModal.tsx";
 import { fetchWithToken } from "../../global/security.ts";
 import { API_BASE_URL } from "../../global/constants.ts";
 import Quill from "quill";
+import { useNavigate } from "react-router-dom";
 
 const ManageArticles = () => {
     const [title, setTitle] = useState("");
@@ -33,6 +34,7 @@ const ManageArticles = () => {
     const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
     const [isArticleDeletionModalOpen, setIsArticleDeletionModalOpen] = useState(false);
     const [isArticleEditionModalOpen, setIsArticleEditionModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const displayPopup = (type: "success" | "error", title: string, message: string) => {
         if (type === "error") {
@@ -60,7 +62,10 @@ const ManageArticles = () => {
     };
 
     const fetchArticles = async () => {
-        let result = await postData("articles-ids", { userId: userState?.id });
+        if (!userState?.id) {
+            navigate("/not-authorized");
+        }
+        let result = await postData("articles-ids", { userId: userState.id });
         if (!result.success) {
             displayPopup("error", "Failed to fetch articles", result.error as string);
             return;

@@ -31,7 +31,6 @@ const Login = () => {
         }
 
         try {
-
             const response = await fetch(`${API_BASE_URL}login`, {
                     method: "POST",
                     headers: {
@@ -56,13 +55,13 @@ const Login = () => {
                 } else {
                     dispatch(
                         setUserState({
-                            ...result.data,
+                            ...result,
                             language: i18n.language,
                             isConnected: true
                         })
                     );
                     saveUserState({
-                        ...result.data,
+                        ...result,
                         language: i18n.language,
                         isConnected: true
                     });
