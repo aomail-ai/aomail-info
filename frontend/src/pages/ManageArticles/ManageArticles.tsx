@@ -13,6 +13,7 @@ import { fetchWithToken } from "../../global/security.ts";
 import { API_BASE_URL } from "../../global/constants.ts";
 import Quill from "quill";
 import { useNavigate } from "react-router-dom";
+import { getSlug } from "../../global/formatters.ts";
 
 const ManageArticles = () => {
     const [title, setTitle] = useState("");
@@ -213,7 +214,7 @@ const ManageArticles = () => {
                                     </p>
                                 </div>
                                 <div className="flex justify-end mt-4 space-x-2">
-                                    <a href={`/article/${article.id}`} target="_blank"
+                                    <a href={`/article/${article.id}/${getSlug(article.title)}`} target="_blank"
                                        className="px-3 py-1 text-sm text-blue-500 border border-blue-500 rounded hover:bg-blue-100"
                                     >
                                         Preview

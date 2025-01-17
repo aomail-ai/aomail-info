@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Default CSS for basic HTML components */
+ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 1rem;
+    color: #555;
+}

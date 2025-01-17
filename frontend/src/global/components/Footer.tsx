@@ -89,7 +89,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <p className="mt-6 text-sm text-slate-500 sm:mt-0">
-                    {VERSION} © 2024 Aomail. {t("footer.allRightsReserved")}
+                    {VERSION} © {new Date().getFullYear()} Aomail. {t("footer.allRightsReserved")}
                 </p>
             </div>
         </footer>
