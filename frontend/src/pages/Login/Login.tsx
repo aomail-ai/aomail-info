@@ -136,16 +136,6 @@ const Login = () => {
             <div className="flex min-h-screen items-center justify-center bg-gray-100 p-12">
                 <div className="space-y-8 text-center">
                     <h1 className="text-xl font-semibold text-gray-800">Sign-in to your account</h1>
-                    <p className="text-sm tracking-wide text-gray-600">
-                        Don't have an account?{" "}
-                        <a
-                            href="/signup"
-                            className="text-blue-600 transition duration-200 hover:underline"
-                        >
-                            Signup
-                        </a>{" "}
-                        for free
-                    </p>
 
                     <div className="space-y-6">
                         <input

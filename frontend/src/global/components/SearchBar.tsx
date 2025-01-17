@@ -35,20 +35,14 @@ const SearchBar = () => {
 
 
     useEffect(() => {
-
-
-        if (!inputValue) void fetchArticles();
-
         const timer = setTimeout(() => {
-            if (inputValue) {
-                if (window.location.pathname !== "/") {
-                    if (inputValue) {
-                        dispatch(setFilters({ search: inputValue }));
-                        navigate("/");
-                    }
-                } else {
-                    void fetchArticles();
+            if (window.location.pathname !== "/") {
+                if (inputValue) {
+                    dispatch(setFilters({ search: inputValue }));
+                    navigate("/");
                 }
+            } else {
+                void fetchArticles();
             }
         }, 900);
 

@@ -15,7 +15,6 @@ import { loadUserState } from "./global/localStorage.ts";
 import ManageArticles from "./pages/ManageArticles/ManageArticles.tsx";
 import Profile from "./pages/Profile/Profile.tsx";
 import React from "react";
-import Signup from "./pages/Signup/Signup.tsx";
 
 
 type  RequireAuthProps = {
@@ -38,7 +37,6 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
-                            <Route path="/signup" element={<Signup />} />
                             <Route path="/dashboard" element={<RequireAuth Component={Dashboard} />} />
                             <Route path="/post-article" element={<RequireAuth Component={PostArticle} />} />
                             <Route path="/manage-articles" element={<RequireAuth Component={ManageArticles} />} />
