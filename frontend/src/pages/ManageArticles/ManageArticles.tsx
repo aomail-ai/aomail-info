@@ -13,6 +13,7 @@ import { fetchWithToken } from "../../global/security.ts";
 import { API_BASE_URL } from "../../global/constants.ts";
 import Quill from "quill";
 import { useNavigate } from "react-router-dom";
+import { EyeIcon } from "@heroicons/react/24/outline";
 import { getSlug } from "../../global/formatters.ts";
 
 const ManageArticles = () => {
@@ -209,6 +210,10 @@ const ManageArticles = () => {
                             >
                                 <div>
                                     <h2 className="text-lg font-semibold text-gray-800">{article.title}</h2>
+                                    <div className="flex items-center text-sm text-gray-500 mt-2">
+                                        <EyeIcon className="h-5 w-5 text-gray-500 mr-2" />
+                                        <span>{article.viewCount}</span>
+                                    </div>
                                     <p className="text-gray-600 text-sm mt-2">
                                         {article.description}
                                     </p>

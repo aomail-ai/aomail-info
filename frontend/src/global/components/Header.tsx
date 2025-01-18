@@ -82,7 +82,7 @@ const Header = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        {t("constants.actions.joinBeta")}
+                        {t("constants.actions.tryForFree")}
                     </a>
                     <button className="open-popup-button text-gray-500 hover:text-gray-600" onClick={openLanguageModal}>
                         <img className="currentLanguageIcon h-6 w-6 mr-2" src={languages[currentLanguage]}
@@ -143,7 +143,7 @@ const Header = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                {t("constants.actions.joinBeta")}
+                                {t("constants.actions.tryForFree")}
                             </a>
                             <button
                                 className="flex text-center rounded-lg mx-4 px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 border border-gray-300 hover:bg-gray-100 items-center justify-center"

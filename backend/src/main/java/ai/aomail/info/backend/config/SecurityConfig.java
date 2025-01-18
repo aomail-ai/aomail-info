@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/miniature-data/**")
                         .ignoringRequestMatchers("/api/articles-ids")
                         .ignoringRequestMatchers("/api/articles-data")
+                        .ignoringRequestMatchers("/api/articles-data/meta-data")
                         .ignoringRequestMatchers("/api/user/**"))
                 .authorizeHttpRequests(authorization -> authorization
                         .requestMatchers("/api/signup").hasAuthority("ADMIN")
@@ -97,6 +98,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/miniature-data/**").permitAll()
                         .requestMatchers("/api/articles-ids").permitAll()
                         .requestMatchers("/api/articles-data").permitAll()
+                        .requestMatchers("/api/articles-data/meta-data").permitAll()
                         .requestMatchers("/api/user/**").hasAuthority("USER")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())

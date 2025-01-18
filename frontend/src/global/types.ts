@@ -13,8 +13,8 @@ export interface Tag {
 }
 
 export interface Reaction {
-    id: string;
     type: string;
+    count: number;
 }
 
 export interface Article {
@@ -27,8 +27,9 @@ export interface Article {
     authorSurname: string;
     createdAt: string;
     updatedAt: string;
-    reactions: Reaction[];
+    reactionCounterList: Reaction[];
     tags: Tag[];
+    viewCount: number;
 }
 
 export interface Filters {

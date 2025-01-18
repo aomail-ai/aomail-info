@@ -2,10 +2,8 @@ package ai.aomail.info.backend.controllers;
 
 import ai.aomail.info.backend.models.Article;
 import ai.aomail.info.backend.repositories.ArticleRepository;
-import ai.aomail.info.backend.utils.ArticleDataResponse;
-import ai.aomail.info.backend.utils.ArticleRequest;
-import ai.aomail.info.backend.utils.ArticleSpecifications;
-import ai.aomail.info.backend.utils.GetArticleIdsRequest;
+import ai.aomail.info.backend.repositories.ReactionRepository;
+import ai.aomail.info.backend.utils.*;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +26,12 @@ import java.util.stream.Collectors;
 public class GetArticleRestController {
     private final Logger logger = LoggerFactory.getLogger(GetArticleRestController.class);
     private final ArticleRepository articleRepository;
+    private final ReactionRepository reactionRepository;
 
 
-    public GetArticleRestController(ArticleRepository articleRepository) {
+    public GetArticleRestController(ArticleRepository articleRepository, ReactionRepository reactionRepository) {
         this.articleRepository = articleRepository;
+        this.reactionRepository = reactionRepository;
     }
 
     @PostMapping(value = "/articles-ids", produces = "application/json")
@@ -105,34 +106,37 @@ public class GetArticleRestController {
                         .body(Map.of("error", "Article IDs are required"));
             }
 
-
             List<Article> articles = articleRepository.findArticleByIdIn(ids);
+            List<ArticleDataResponse> response = new ArrayList<>();
 
-            //
             articles.forEach(article -> {
                 // Eagerly initialize the reactions and tags to avoid lazy loading issues
                 Hibernate.initialize(article.getReactions());
                 Hibernate.initialize(article.getTags());
-                logger.info("Successfully retrieved article with ID {}", article.getId());
-                logger.info("Reactions: {}", article.getReactions());
-                logger.info("Tags: {}", article.getTags());
-            });
 
-            List<ArticleDataResponse> response = articles.stream()
-                    .map(article -> new ArticleDataResponse(
-                            article.getId(),
-                            article.getTitle(),
-                            article.getDescription(),
-                            article.getContent(),
-                            article.getMiniatureFileName(),
-                            article.getUser().getName(),
-                            article.getUser().getSurname(),
-                            article.getCreatedAt(),
-                            article.getUpdatedAt(),
-                            article.getReactions(),
-                            article.getTags()
-                    ))
-                    .toList();
+                List<ReactionCounter> reactionCounterList = new ArrayList<>();
+
+                reactionCounterList.add(new ReactionCounter("nice", reactionRepository.findReactionsByIndexAndArticle(1, article).size()));
+                reactionCounterList.add(new ReactionCounter("good", reactionRepository.findReactionsByIndexAndArticle(2, article).size()));
+                reactionCounterList.add(new ReactionCounter("bof", reactionRepository.findReactionsByIndexAndArticle(3, article).size()));
+                reactionCounterList.add(new ReactionCounter("bad", reactionRepository.findReactionsByIndexAndArticle(4, article).size()));
+                reactionCounterList.add(new ReactionCounter("terrible", reactionRepository.findReactionsByIndexAndArticle(5, article).size()));
+
+                response.add(new ArticleDataResponse(
+                        article.getId(),
+                        article.getTitle(),
+                        article.getDescription(),
+                        article.getContent(),
+                        article.getMiniatureFileName(),
+                        article.getUser().getName(),
+                        article.getUser().getSurname(),
+                        article.getCreatedAt(),
+                        article.getUpdatedAt(),
+                        reactionCounterList,
+                        article.getTags(),
+                        article.getViews().size()
+                ));
+            });
 
             logger.info("Successfully retrieved {} articles", articles.size());
             return ResponseEntity.ok(Map.of("articles", response));

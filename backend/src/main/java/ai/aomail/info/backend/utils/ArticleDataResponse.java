@@ -1,6 +1,5 @@
 package ai.aomail.info.backend.utils;
 
-import ai.aomail.info.backend.models.Reaction;
 import ai.aomail.info.backend.models.Tag;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +20,9 @@ public class ArticleDataResponse {
     private final String authorSurname;
     private final Date createdAt;
     private final Date updatedAt;
-    private final List<Reaction> reactions;
+    private final List<ReactionCounter> reactionCounterList;
     private final List<Tag> tags;
+    private final int viewCount;
 
 
     public ArticleDataResponse(
@@ -35,8 +35,9 @@ public class ArticleDataResponse {
             String authorSurname,
             Date createdAt,
             Date updatedAt,
-            List<Reaction> reactions,
-            List<Tag> tags
+            List<ReactionCounter> reactionCounterList,
+            List<Tag> tags,
+            int viewCount
     ) {
         this.id = id;
         this.title = title;
@@ -47,7 +48,8 @@ public class ArticleDataResponse {
         this.authorSurname = authorSurname;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.reactions = reactions;
+        this.reactionCounterList = reactionCounterList;
         this.tags = tags;
+        this.viewCount = viewCount;
     }
 }

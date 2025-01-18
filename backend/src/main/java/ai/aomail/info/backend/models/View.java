@@ -1,5 +1,6 @@
 package ai.aomail.info.backend.models;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,23 +11,20 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor
-public class Reaction {
+public class View {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int index;
-
     @Column(nullable = false)
     private String ipAddress;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "article_id", nullable = false)
     @JsonIgnore
     private Article article;
 
-    public Reaction(int index, Article article, String ipAddress) {
-        this.index = index;
+    public View(Article article, String ipAddress) {
         this.article = article;
         this.ipAddress = ipAddress;
     }
