@@ -7,11 +7,13 @@ export default defineConfig({
     server: {
         port: 3000,
         host: true,
-        strictPort: true
+        strictPort: true,
+        allowedHosts: ["info.aomail.ai"],
     },
     preview: {
         host: true,
         strictPort: true,
-        port: 3000
-    }
+        port: 3000,
+        allowedHosts: ["info.aomail.ai"],
+    },
 });
