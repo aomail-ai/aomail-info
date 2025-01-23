@@ -13,7 +13,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - aomail-info_postgres_data:/var/lib/postgresql/data
 
   backend_prod:
     build:
@@ -49,4 +49,5 @@ services:
       - backend_prod
 
 volumes:
-  postgres_data:
+  aomail-info_postgres_data:
+    external: true
