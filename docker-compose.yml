@@ -14,6 +14,7 @@ services:
       retries: 5
     volumes:
       - aomail-info_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   backend_prod:
     build:
@@ -35,6 +36,7 @@ services:
       - BASE_URL=${BASE_URL}
     volumes:
       - /home/prod/aomail-info/backend/src/main/resources/static/miniatureImages:/app/src/main/resources/static/miniatureImages
+    restart: unless-stopped
 
   frontend_prod:
     build:
@@ -47,6 +49,7 @@ services:
       - "${FRONTEND_PORT}:3000"
     depends_on:
       - backend_prod
+    restart: unless-stopped
 
 volumes:
   aomail-info_postgres_data:
